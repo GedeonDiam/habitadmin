@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Global - HabitAdmin</title>
+    <!-- 📦 Chargement de Tailwind depuis CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 🎨 Configuration Tailwind personnalisée -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'green-admin': '#10B981',
+                        'green-light': '#D1FAE5',
+                        'green-dark': '#047857',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 🖌️ Styles personnalisés en CSS pour garantir le rendu -->
+    <style>
+        /* Couleurs principales */
+        
+         :root {
+            --color-green-admin: #10B981;
+            --color-green-light: #D1FAE5;
+            --color-green-dark: #047857;
+            --color-dark: #1F2937;
+        }
+        /* Sidebar - barre latérale gris foncé */
+        
+        .sidebar-bg {
+            background-color: #1F2937;
+            color: #f3f4f6;
+        }
+        
+        .sidebar-bg-hover {
+            background-color: #374151;
+        }
+        
+        .sidebar-bg-active {
+            background-color: #111827;
+        }
+        /* Éléments du menu indentés */
+        
+        .submenu-item {
+            padding-left: 2.5rem;
+        }
+        /* Les transitions en douceur */
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        /* Force le corps à prendre toute la hauteur */
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        /* Garantir que les couleurs Tailwind s'appliquent */
+        
+        .bg-green-admin {
+            background-color: rgb(16, 185, 129) !important;
+        }
+        
+        .text-green-admin {
+            color: rgb(16, 185, 129) !important;
+        }
+        
+        .border-green-admin {
+            border-color: rgb(16, 185, 129) !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex h-screen overflow-hidden" style="margin: 0; padding: 0;">
+    <!-- 📍 SIDEBAR - Menu latéral gauche -->
+    <aside class="sidebar-bg text-gray-100 w-64 flex flex-col overflow-y-auto shadow-lg fixed left-0 top-0 bottom-0 z-40" style="background-color: #1F2937;">
+        <!-- Logo et titre -->
+        <div class="p-6 border-b border-gray-600">
+            <div class="flex items-center space-x-3 mb-2">
+                <!-- Logo circulaire vert -->
+                <div class="bg-green-admin text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg" style="background-color: #10B981;">
+                    HA
+                </div>
+                <div>
+                    <h1 class="font-bold text-white">HabitAdmin</h1>
+                    <p class="text-xs text-gray-400">Central Admin v0.1</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation principale -->
+        <nav class="flex-1 p-4 space-y-2">
+            <!-- Bouton Dashboard principal - en VERT (actif) -->
+            <a href="/app/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-white transition-all font-medium text-sm" style="background-color: #10B981;">
+                <span class="text-lg">📊</span>
+                <span>Dashboard Global</span>
+            </a>
+
+            <!-- Section Applications -->
+            <div class="mt-6">
+                <p class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">📦 Applications</p>
+
+                <!-- 🏠 Habitago (déroulant) -->
+                <div class="space-y-1">
+                    <button id="habitago-toggle" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 transition-all font-medium text-sm" style="background-color: #374151;" data-toggle="habitago">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🏠</span>
+                            <span>Habitago</span>
+                        </div>
+                        <svg id="habitago-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div id="habitago-menu" class="space-y-1">
+                        <a href="/app/habitago/dashboard" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>📊</span><span>Dashboard</span>
+                        </a>
+                        <a href="/app/habitago/users" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>👥</span><span>Utilisateurs</span>
+                        </a>
+                        <a href="/app/habitago/properties" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>🏘️</span><span>Logements</span>
+                        </a>
+                        <a href="/app/habitago/contracts" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>📋</span><span>Contrats</span>
+                        </a>
+                        <a href="/app/habitago/payments" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>💰</span><span>Paiements</span>
+                        </a>
+                        <a href="/app/habitago/incidents" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>🔴</span><span>Incidents</span>
+                        </a>
+                        <a href="/app/habitago/intervenants" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>👨‍🔧</span><span>Intervenants</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 🌿 HabitaGreen (déroulant) -->
+                <div class="space-y-1 mt-3">
+                    <button id="habitagreen-toggle" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 transition-all font-medium text-sm" style="background-color: #374151;" data-toggle="habitagreen">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🌿</span>
+                            <span>HabitaGreen</span>
+                        </div>
+                        <svg id="habitagreen-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div id="habitagreen-menu" class="space-y-1 hidden">
+                        <a href="/app/habitagreen/dashboard" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>🌱</span><span>Dashboard Écologique</span>
+                        </a>
+                        <a href="/app/habitagreen/consumption" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>⚡</span><span>Consommations</span>
+                        </a>
+                        <a href="/app/habitagreen/recommendations" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>💡</span><span>Recommandations</span>
+                        </a>
+                        <a href="/app/habitagreen/challenges" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>🎯</span><span>Défis</span>
+                        </a>
+                        <a href="/app/habitagreen/scores" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item text-gray-400 hover:text-gray-200 transition-all text-sm" style="background-color: #374151;">
+                            <span>⭐</span><span>Scores</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Pied du sidebar -->
+        <div class="p-4 border-t border-gray-600 space-y-2">
+            <a href="/notifications" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 transition-all text-sm" style="background-color: #374151;">
+                <span class="text-lg">🔔</span>
+                <span>Notifications</span>
+            </a>
+            <a href="/settings" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 transition-all text-sm" style="background-color: #374151;">
+                <span class="text-lg">⚙️</span>
+                <span>Paramètres</span>
+            </a>
+            <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-red-400 transition-all text-sm" style="background-color: #7f1d1d;">
+                <span class="text-lg">🚪</span>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 📱 CONTENU PRINCIPAL -->
+    <main class="flex-1 flex flex-col overflow-auto" style="margin-left: 256px;">
+        <!-- En-tête blanc -->
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Dashboard Global</h2>
+                <nav class="flex items-center space-x-2 text-sm text-gray-600 mt-1">
+                    <span class="font-medium" style="color: #10B981;">HabitAdmin</span>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-600 hover:text-gray-900 text-lg">🔔</button>
+                <div class="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold cursor-pointer" style="background-color: #10B981;">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenu scrollable -->
+        <div class="flex-1 overflow-auto">
+            <div class="max-w-7xl mx-auto p-8">
+                <!-- Titre et description -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Supervision Centrale</h1>
+                    <p class="text-gray-600">Vue d'ensemble de toutes les applications HabitAdmin</p>
+                </div>
+
+                <!-- Stats Globales (4 cartes) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <!-- Card 1: Applications Actives (bleu) -->
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                        <p class="text-gray-600 text-sm">Applications Actives</p>
+                        <p class="text-4xl font-bold text-blue-600 mt-2">2</p>
+                        <p class="text-gray-600 text-xs mt-2">Habitago, HabitaGreen</p>
+                    </div>
+
+                    <!-- Card 2: Utilisateurs (vert) -->
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4" style="border-left-color: #10B981;">
+                        <p class="text-gray-600 text-sm">Utilisateurs Totaux</p>
+                        <p class="text-4xl font-bold mt-2" style="color: #10B981;">342</p>
+                        <p class="text-xs mt-2" style="color: #10B981;">+15% ce mois</p>
+                    </div>
+
+                    <!-- Card 3: Incidents (jaune) -->
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                        <p class="text-gray-600 text-sm">Incidents Ouverts</p>
+                        <p class="text-4xl font-bold text-yellow-600 mt-2">12</p>
+                        <p class="text-yellow-600 text-xs mt-2">En cours de traitement</p>
+                    </div>
+
+                    <!-- Card 4: Alertes (rouge) -->
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+                        <p class="text-gray-600 text-sm">Alertes Critiques</p>
+                        <p class="text-4xl font-bold text-red-600 mt-2">5</p>
+                        <p class="text-red-600 text-xs mt-2">Nécessitent attention</p>
+                    </div>
+                </div>
+
+                <!-- Applications Overview (2 colonnes) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 🏠 Habitago Card -->
+                    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">🏠 Habitago</h3>
+                                <p class="text-gray-600 text-sm">Gestion Locatives</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Actif</span>
+                        </div>
+
+                        <div class="space-y-3 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Logements</span>
+                                <span class="font-bold text-gray-900">156</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Contrats Actifs</span>
+                                <span class="font-bold text-gray-900">142</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Retards Paiement</span>
+                                <span class="font-bold text-red-600">5</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Incidents</span>
+                                <span class="font-bold text-yellow-600">3</span>
+                            </div>
+                        </div>
+
+                        <a href="/app/habitago/dashboard" class="w-full px-4 py-2 text-white rounded-lg font-medium transition text-center" style="background-color: #10B981;" onmouseover="this.style.backgroundColor='#047857'" onmouseout="this.style.backgroundColor='#10B981'">
+                            Accéder à Habitago →
+                        </a>
+                    </div>
+
+                    <!-- 🌿 HabitaGreen Card -->
+                    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">🌿 HabitaGreen</h3>
+                                <p class="text-gray-600 text-sm">Gestion Écologique</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Actif</span>
+                        </div>
+
+                        <div class="space-y-3 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Logements Suivis</span>
+                                <span class="font-bold text-gray-900">89</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Consommation Moyenne</span>
+                                <span class="font-bold text-gray-900">12.3 kWh</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Score Écologique</span>
+                                <span class="font-bold" style="color: #10B981;">7.8/10</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Défis en Cours</span>
+                                <span class="font-bold text-blue-600">24</span>
+                            </div>
+                        </div>
+
+                        <a href="/app/habitagreen/dashboard" class="w-full px-4 py-2 text-white rounded-lg font-medium transition text-center" style="background-color: #10B981;" onmouseover="this.style.backgroundColor='#047857'" onmouseout="this.style.backgroundColor='#10B981'">
+                            Accéder à HabitaGreen →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Notifications Globales -->
+                <div class="mt-8 bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">🔔 Alertes Prioritaires</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                            <span class="text-xl">🔴</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">Habitago: 5 paiements en retard</p>
+                                <p class="text-sm text-gray-600">Montant total: 2 450 €</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
+                            <span class="text-xl">⚠️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">HabitaGreen: Pic de consommation détecté</p>
+                                <p class="text-sm text-gray-600">3 logements dépassent leur quota</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript pour les menus déroulants -->
+    <script>
+        const toggleButtons = document.querySelectorAll('[data-toggle]');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const toggleId = this.getAttribute('data-toggle');
+                const menu = document.getElementById(toggleId + '-menu');
+                const icon = document.getElementById(toggleId + '-icon');
+
+                menu.classList.toggle('hidden');
+                icon.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        });
+
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+</body>
+
+</html>

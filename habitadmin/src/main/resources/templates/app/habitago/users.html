@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{app/app-layout}" lang="fr">
+
+<head>
+    <title>Gestion des Utilisateurs - HabitAdmin</title>
+</head>
+
+<body>
+    <th:block layout:fragment="pageTitle">👥 Gestion des Utilisateurs</th:block>
+
+    <th:block layout:fragment="content">
+        <!-- Sous-titre et description -->
+        <div class="mb-8">
+            <p class="text-gray-600">Gérez tous les utilisateurs et administrateurs de Habitago</p>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <!-- Barre de recherche -->
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher par email, nom ou prénom..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" onkeyup="filterUsers()">
+            </div>
+
+            <!-- Bouton Ajouter -->
+            <button onclick="openAddUserModal()" class="px-6 py-2 text-white rounded-lg font-medium transition text-center w-full md:w-auto bg-green-admin hover:opacity-90">
+                ➕ Ajouter un utilisateur
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+                <p class="text-gray-600 text-sm">Total Utilisateurs</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1" id="totalUsers">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+                <p class="text-gray-600 text-sm">Actifs</p>
+                <p class="text-3xl font-bold text-green-600 mt-1" id="activeUsers">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+                <p class="text-gray-600 text-sm">Administrateurs</p>
+                <p class="text-3xl font-bold text-purple-600 mt-1" id="adminUsers">0</p>
+            </div>
+        </div>
+
+        <!-- Tableau des utilisateurs -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Nom</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Prénom</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Rôle</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date Création</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="divide-y divide-gray-200">
+                        <!-- Les utilisateurs seront insérés ici par JavaScript -->
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                Aucun utilisateur trouvé. Cliquez sur "Ajouter un utilisateur" pour commencer.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </main>
+        </div>
+
+        <!-- MODAL - Ajouter/Éditer Utilisateur -->
+        <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+                <!-- Header Modal -->
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900" id="modalTitle">Ajouter un utilisateur</h2>
+                    <button onclick="closeUserModal()" class="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                </div>
+
+                <!-- Formulaire -->
+                <form id="userForm" onsubmit="saveUser(event)" class="p-6 space-y-4">
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="utilisateur@example.com">
+                    </div>
+
+                    <!-- Nom -->
+                    <div>
+                        <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                        <input type="text" id="nom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="Dupont">
+                    </div>
+
+                    <!-- Prénom -->
+                    <div>
+                        <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                        <input type="text" id="prenom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="Jean">
+                    </div>
+
+                    <!-- ID caché pour édition -->
+                    <input type="hidden" id="editingUserId">
+
+                    <!-- Mot de passe -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="••••••••">
+                        <p class="text-xs text-gray-500 mt-1">Laisser vide pour ne pas modifier le mot de passe</p>
+                    </div>
+
+                    <!-- Rôle -->
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                        <select id="role" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                        <option value="">Sélectionner un rôle...</option>
+                        <option value="admin">Admin</option>
+                        <option value="proprietaire">Propriétaire</option>
+                        <option value="locataire">Locataire</option>
+                        <option value="intervenant">Intervenant</option>
+                    </select>
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeUserModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+                        Annuler
+                    </button>
+                        <button type="submit" class="flex-1 px-4 py-2 text-white rounded-lg font-medium transition bg-green-admin hover:opacity-90">
+                        Enregistrer
+                    </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- JavaScript -->
+        <script>
+            // 📊 Données téléchargées (sera remplacé par une API plus tard)
+            let users = [{
+                id: 1,
+                email: "admin@habitago.fr",
+                nom: "Dupont",
+                prenom: "Jean",
+                role: "admin",
+                date_creation: "2026-01-15",
+                mot_de_passe: "hashed_password_1"
+            }, {
+                id: 2,
+                email: "catherine.martin@habitago.fr",
+                nom: "Martin",
+                prenom: "Catherine",
+                role: "proprietaire",
+                date_creation: "2026-01-20",
+                mot_de_passe: "hashed_password_2"
+            }, {
+                id: 3,
+                email: "locataire@example.fr",
+                nom: "Moreau",
+                prenom: "Pierre",
+                role: "locataire",
+                date_creation: "2026-02-01",
+                mot_de_passe: "hashed_password_3"
+            }];
+
+            let editingUserId = null;
+
+            // 🔄 Rafraîchir le tableau au chargement
+            function loadUsers() {
+                renderUsers(users);
+                updateStats();
+            }
+
+            // 🎨 Afficher les utilisateurs dans le tableau
+            function renderUsers(usersData) {
+                const tbody = document.getElementById('usersTableBody');
+
+                if (usersData.length === 0) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            Aucun utilisateur trouvé.
+                        </td>
+                    </tr>
+                `;
+                    return;
+                }
+
+                tbody.innerHTML = usersData.map(user => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-sm text-gray-900">${user.email}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${user.nom}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${user.prenom}</td>
+                    <td class="px-6 py-4 text-sm">
+                        ${getRoleBadge(user.role)}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${new Date(user.date_creation).toLocaleDateString('fr-FR')}</td>
+                    <td class="px-6 py-4 text-sm space-x-2 flex">
+                        <button 
+                            onclick="editUser(${user.id})"
+                            class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs font-medium"
+                        >
+                            ✏️ Éditer
+                        </button>
+                        <button 
+                            onclick="deleteUser(${user.id})"
+                            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-xs font-medium"
+                        >
+                            🗑️ Supprimer
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            // 🏷️ Afficher le badge selon le rôle
+            function getRoleBadge(role) {
+                const badges = {
+                    'admin': {
+                        class: 'px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800',
+                        label: '👑 Admin'
+                    },
+                    'proprietaire': {
+                        class: 'px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800',
+                        label: '🏠 Propriétaire'
+                    },
+                    'locataire': {
+                        class: 'px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800',
+                        label: '🏘️ Locataire'
+                    },
+                    'intervenant': {
+                        class: 'px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800',
+                        label: '👨‍🔧 Intervenant'
+                    }
+                };
+                const badge = badges[role] || badges['locataire'];
+                return `<span class="${badge.class}">${badge.label}</span>`;
+            }
+
+            // 📈 Mettre à jour les statistiques
+            function updateStats() {
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('activeUsers').textContent = users.length; // À améliorer
+                document.getElementById('adminUsers').textContent = users.filter(u => u.role === 'admin').length;
+            }
+
+            // 🔍 Filtrer les utilisateurs
+            function filterUsers() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = users.filter(user =>
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.nom.toLowerCase().includes(searchTerm) ||
+                    user.prenom.toLowerCase().includes(searchTerm)
+                );
+                renderUsers(filtered);
+            }
+
+            // ➕ Ouvrir le modal pour ajouter
+            function openAddUserModal() {
+                editingUserId = null;
+                document.getElementById('modalTitle').textContent = 'Ajouter un nouvel utilisateur';
+                document.getElementById('userForm').reset();
+                document.getElementById('userModal').classList.remove('hidden');
+                document.getElementById('userModal').classList.add('flex');
+            }
+
+            // ✏️ Ouvrir le modal pour éditer
+            function editUser(userId) {
+                const user = users.find(u => u.id === userId);
+                if (!user) return;
+
+                editingUserId = userId;
+                document.getElementById('modalTitle').textContent = 'Modifier l\'utilisateur';
+                document.getElementById('email').value = user.email;
+                document.getElementById('nom').value = user.nom;
+                document.getElementById('prenom').value = user.prenom;
+                document.getElementById('role').value = user.role;
+                document.getElementById('password').value = '';
+
+                document.getElementById('userModal').classList.remove('hidden');
+                document.getElementById('userModal').classList.add('flex');
+            }
+
+            // ❌ Fermer le modal
+            function closeUserModal() {
+                document.getElementById('userModal').classList.add('hidden');
+                document.getElementById('userModal').classList.remove('flex');
+                editingUserId = null;
+            }
+
+            // 💾 Enregistrer l'utilisateur
+            function saveUser(event) {
+                event.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const nom = document.getElementById('nom').value;
+                const prenom = document.getElementById('prenom').value;
+                const role = document.getElementById('role').value;
+                const password = document.getElementById('password').value;
+
+                if (editingUserId) {
+                    // 🔄 Modification
+                    const user = users.find(u => u.id === editingUserId);
+                    if (user) {
+                        user.email = email;
+                        user.nom = nom;
+                        user.prenom = prenom;
+                        user.role = role;
+                        if (password) user.mot_de_passe = password; // En réalité, on hasherait le mot de passe
+                    }
+                    alert('✅ Utilisateur modifié avec succès !');
+                } else {
+                    // ➕ Création
+                    const newUser = {
+                        id: Math.max(...users.map(u => u.id)) + 1,
+                        email: email,
+                        nom: nom,
+                        prenom: prenom,
+                        role: role,
+                        date_creation: new Date().toISOString().split('T')[0],
+                        mot_de_passe: password || 'default_password'
+                    };
+                    users.push(newUser);
+                    alert('✅ Nouvel utilisateur créé avec succès !');
+                }
+
+                closeUserModal();
+                loadUsers();
+            }
+
+            // 🗑️ Supprimer un utilisateur
+            function deleteUser(userId) {
+                const user = users.find(u => u.id === userId);
+                if (!user) return;
+
+                if (confirm(`Êtes-vous sûr de vouloir supprimer ${user.prenom} ${user.nom} ?`)) {
+                    users = users.filter(u => u.id !== userId);
+                    alert('✅ Utilisateur supprimé avec succès !');
+                    loadUsers();
+                }
+            }
+
+            // 🚀 Charger les utilisateurs au chargement de la page
+            window.addEventListener('load', loadUsers);
+
+            // Fermer le modal en cliquant sur le fond
+            document.getElementById('userModal').addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeUserModal();
+                }
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

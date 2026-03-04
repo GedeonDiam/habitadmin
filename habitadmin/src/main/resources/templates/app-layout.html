@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - HabitAdmin'">HabitAdmin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'green-admin': '#10B981',
+                        'green-light': '#D1FAE5',
+                        'green-dark': '#047857',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-bg {
+            background-color: #1F2937;
+        }
+        
+        .sidebar-bg-hover {
+            background-color: #374151;
+        }
+        
+        .sidebar-bg-active {
+            background-color: #111827;
+        }
+        
+        .submenu-item {
+            padding-left: 2.5rem;
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar-bg text-gray-100 w-64 flex flex-col overflow-y-auto shadow-lg fixed left-0 top-0 bottom-0 z-40">
+
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-600">
+            <div class="flex items-center space-x-3 mb-2">
+                <div class="bg-green-admin text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg">
+                    HA
+                </div>
+                <div>
+                    <h1 class="font-bold text-white">HabitAdmin</h1>
+                    <p class="text-xs text-gray-400">Central Admin v0.1</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <nav class="flex-1 p-4 space-y-2">
+
+            <!-- Dashboard Global -->
+            <a href="/app/dashboard" th:classappend="${activeSection == 'global' ? 'bg-green-admin text-white' : 'text-gray-300 hover:bg-sidebar-bg-hover'}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium text-sm">
+                <span class="text-lg">📊</span>
+                <span>Dashboard Global</span>
+            </a>
+
+            <!-- Applications Section -->
+            <div class="mt-6">
+                <p class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">📦 Applications</p>
+
+                <!-- Habitago Module -->
+                <div class="space-y-1">
+                    <button id="habitago-toggle" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 transition-all font-medium text-sm group" data-toggle="habitago">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🏠</span>
+                            <span>Habitago</span>
+                        </div>
+                        <svg id="habitago-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div id="habitago-menu" class="space-y-1 hidden sidebar-bg-active">
+                        <a href="/app/habitago/dashboard" th:classappend="${activeApp == 'habitago' and activeSection == 'dashboard' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>📊</span><span>Dashboard</span>
+                        </a>
+                        <a href="/app/habitago/users" th:classappend="${activeApp == 'habitago' and activeSection == 'users' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>👥</span><span>Utilisateurs</span>
+                        </a>
+                        <a href="/app/habitago/properties" th:classappend="${activeApp == 'habitago' and activeSection == 'properties' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>🏘️</span><span>Logements</span>
+                        </a>
+                        <a href="/app/habitago/contracts" th:classappend="${activeApp == 'habitago' and activeSection == 'contracts' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>📋</span><span>Contrats</span>
+                        </a>
+                        <a href="/app/habitago/payments" th:classappend="${activeApp == 'habitago' and activeSection == 'payments' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>💰</span><span>Paiements</span>
+                        </a>
+                        <!-- <a href="/app/habitago/incidents" th:classappend="${activeApp == 'habitago' and activeSection == 'incidents' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>🔴</span><span>Incidents</span>
+                        </a>
+                        <a href="/app/habitago/intervenants" th:classappend="${activeApp == 'habitago' and activeSection == 'intervenants' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>👨‍🔧</span><span>Intervenants</span>
+                        </a> -->
+                    </div>
+                </div>
+
+                <!-- HabitaGreen Module -->
+                <div class="space-y-1 mt-3">
+                    <button id="habitagreen-toggle" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 transition-all font-medium text-sm group" data-toggle="habitagreen">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🌿</span>
+                            <span>HabitaGreen</span>
+                        </div>
+                        <svg id="habitagreen-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div id="habitagreen-menu" class="space-y-1 hidden sidebar-bg-active">
+                        <a href="/app/habitagreen/dashboard" th:classappend="${activeApp == 'habitagreen' and activeSection == 'dashboard' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>🌱</span><span>Dashboard Écologique</span>
+                        </a>
+                        <a href="/app/habitagreen/consumption" th:classappend="${activeApp == 'habitagreen' and activeSection == 'consumption' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>⚡</span><span>Consommations</span>
+                        </a>
+                        <a href="/app/habitagreen/recommendations" th:classappend="${activeApp == 'habitagreen' and activeSection == 'recommendations' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>💡</span><span>Recommandations</span>
+                        </a>
+                        <a href="/app/habitagreen/challenges" th:classappend="${activeApp == 'habitagreen' and activeSection == 'challenges' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>🎯</span><span>Défis</span>
+                        </a>
+                        <a href="/app/habitagreen/scores" th:classappend="${activeApp == 'habitagreen' and activeSection == 'scores' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>⭐</span><span>Scores</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-gray-600 space-y-2">
+            <a href="/notifications" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition-all text-sm">
+                <span class="text-lg">🔔</span>
+                <span>Notifications</span>
+            </a>
+            <a href="/settings" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition-all text-sm">
+                <span class="text-lg">⚙️</span>
+                <span>Paramètres</span>
+            </a>
+            <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-red-400 hover:bg-red-950 transition-all text-sm">
+                <span class="text-lg">🚪</span>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-auto ml-64">
+        <!-- Top Bar -->
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900" th:text="${pageTitle}">Page Title</h2>
+                <nav class="flex items-center space-x-2 text-sm text-gray-600 mt-1">
+                    <a href="/app/dashboard" class="text-green-admin hover:text-green-dark">HabitAdmin</a>
+                    <span>/</span>
+                    <span th:text="${appName}">App</span>
+                    <span th:if="${breadcrumb}" class="text-gray-400">/</span>
+                    <span th:if="${breadcrumb}" th:text="${breadcrumb}" class="text-gray-900 font-medium"></span>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-600 hover:text-gray-900 text-lg">🔔</button>
+                <div class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="max-w-7xl mx-auto p-8">
+                <th:block th:replace="${content}"></th:block>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Accordion management for submenus
+        const toggleButtons = document.querySelectorAll('[data-toggle]');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const toggleId = this.getAttribute('data-toggle');
+                const menu = document.getElementById(toggleId + '-menu');
+                const icon = document.getElementById(toggleId + '-icon');
+
+                menu.classList.toggle('hidden');
+                icon.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        });
+
+        // Expand active app menu on load
+        function expandActiveMenu() {
+            const activeApp = document.querySelector('[data-toggle]').closest('.space-y-1');
+            if (activeApp) {
+                const activeMenu = activeApp.querySelector('[id$="-menu"]');
+                if (activeMenu && !activeMenu.classList.contains('hidden')) {
+                    const toggleId = activeMenu.id.replace('-menu', '');
+                    const icon = document.getElementById(toggleId + '-icon');
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                }
+            }
+        }
+
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        expandActiveMenu();
+    </script>
+</body>
+
+</html>
