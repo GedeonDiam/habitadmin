@@ -1,5 +1,6 @@
 package com.habit.habitadmin.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -7,8 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
-        return "app-dashboard";
+    public String home(Authentication authentication) {
+        // Si l'utilisateur n'est pas connecté, le rediriger vers la page de login
+        // (ceci est géré par Spring Security avec authorizeHttpRequests)
+        // Si connecté, rediriger vers le dashboard
+        return "redirect:/habitago/users";
     }
     
     @GetMapping("/app/dashboard")
