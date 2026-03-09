@@ -42,14 +42,13 @@ public class AdminUserDetailsService implements UserDetailsService {
         
         authorities.add(new SimpleGrantedAuthority(roleName));
 
-        return User.builder()
-                .username(admin.getEmail())
-                .password(admin.getMotDePasse())
-                .authorities(authorities)
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(!admin.getActif())
-                .build();
+        return new CustomUserDetails(
+                admin.getEmail(),
+                admin.getMotDePasse(),
+                authorities,
+                admin.getPrenom(),
+                admin.getNom(),
+                admin.getActif()
+        );
     }
 }

@@ -173,8 +173,25 @@
             </div>
             <div class="flex items-center space-x-4">
                 <button class="text-gray-600 hover:text-gray-900 text-lg">🔔</button>
-                <div class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer">
-                    A
+                <div class="relative">
+                    <div id="avatar-btn" class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer hover:bg-green-dark transition-colors" th:text="${#authentication.principal.prenom?.substring(0,1)?.toUpperCase() ?: 'A'}">
+                        A
+                    </div>
+                    <!-- Dropdown Menu -->
+                    <div id="avatar-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                        <div class="px-4 py-3 border-b border-gray-200">
+                            <p class="text-sm text-gray-700 font-medium" th:text="${#authentication.principal.nom}">Utilisateur</p>
+                            <p class="text-xs text-gray-600" th:text="${#authentication.principal.username}">email@example.com</p>
+                        </div>
+                        <a href="/settings" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors text-sm">
+                            <span>⚙️</span>
+                            <span>Profil</span>
+                        </a>
+                        <button onclick="logout()" class="w-full text-left flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm">
+                            <span>🚪</span>
+                            <span>Déconnexion</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
