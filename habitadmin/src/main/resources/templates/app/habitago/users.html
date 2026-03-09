@@ -31,15 +31,16 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
                 <p class="text-gray-600 text-sm">Total Utilisateurs</p>
-                <p class="text-3xl font-bold text-blue-600 mt-1" id="totalUsers">0</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1" id="totalUsers" th:text="${totalUsers}"></p>
             </div>
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
                 <p class="text-gray-600 text-sm">Actifs</p>
                 <p class="text-3xl font-bold text-green-600 mt-1" id="activeUsers">0</p>
             </div>
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
-                <p class="text-gray-600 text-sm">Administrateurs</p>
-                <p class="text-3xl font-bold text-purple-600 mt-1" id="adminUsers">0</p>
+                <p class="text-gray-600 text-sm">Dernier Utilisateur</p>
+                <p class="text-sm font-bold text-purple-600 mt-2" id="lastUserEmail">-</p>
+                <p class="text-sm text-purple-600" id="lastUserName">-</p>
             </div>
         </div>
 
@@ -47,6 +48,7 @@
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
+
                     <thead class="bg-gray-100 border-b border-gray-200">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Email</th>
@@ -57,14 +59,11 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody id="usersTableBody" class="divide-y divide-gray-200">
-                        <!-- Les utilisateurs seront insérés ici par JavaScript -->
-                        <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                Aucun utilisateur trouvé. Cliquez sur "Ajouter un utilisateur" pour commencer.
-                            </td>
-                        </tr>
+                        <!-- Les utilisateurs seront générés par JavaScript -->
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -137,39 +136,22 @@
 
         <!-- JavaScript -->
         <script>
-            // 📊 Données téléchargées (sera remplacé par une API plus tard)
-            let users = [{
-                id: 1,
-                email: "admin@habitago.fr",
-                nom: "Dupont",
-                prenom: "Jean",
-                role: "admin",
-                date_creation: "2026-01-15",
-                mot_de_passe: "hashed_password_1"
-            }, {
-                id: 2,
-                email: "catherine.martin@habitago.fr",
-                nom: "Martin",
-                prenom: "Catherine",
-                role: "proprietaire",
-                date_creation: "2026-01-20",
-                mot_de_passe: "hashed_password_2"
-            }, {
-                id: 3,
-                email: "locataire@example.fr",
-                nom: "Moreau",
-                prenom: "Pierre",
-                role: "locataire",
-                date_creation: "2026-02-01",
-                mot_de_passe: "hashed_password_3"
-            }];
-
+            let users = [];
             let editingUserId = null;
 
             // 🔄 Rafraîchir le tableau au chargement
             function loadUsers() {
-                renderUsers(users);
-                updateStats();
+                fetch('/habitago/users/api')
+                    .then(response => response.json())
+                    .then(data => {
+                        users = data;
+                        renderUsers(users);
+                        updateStats();
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des utilisateurs:', error);
+                        alert('Erreur lors du chargement des utilisateurs.');
+                    });
             }
 
             // 🎨 Afficher les utilisateurs dans le tableau
@@ -195,7 +177,7 @@
                     <td class="px-6 py-4 text-sm">
                         ${getRoleBadge(user.role)}
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${new Date(user.date_creation).toLocaleDateString('fr-FR')}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${formatDate(user.dateCreation)}</td>
                     <td class="px-6 py-4 text-sm space-x-2 flex">
                         <button 
                             onclick="editUser(${user.id})"
@@ -212,6 +194,13 @@
                     </td>
                 </tr>
             `).join('');
+            }
+
+            // 📅 Formater la date
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR');
             }
 
             // 🏷️ Afficher le badge selon le rôle
@@ -242,7 +231,20 @@
             function updateStats() {
                 document.getElementById('totalUsers').textContent = users.length;
                 document.getElementById('activeUsers').textContent = users.length; // À améliorer
-                document.getElementById('adminUsers').textContent = users.filter(u => u.role === 'admin').length;
+
+                // Trouver le dernier utilisateur créé
+                if (users.length > 0) {
+                    const lastUser = users.reduce((latest, user) => {
+                        const latestDate = new Date(latest.dateCreation);
+                        const userDate = new Date(user.dateCreation);
+                        return userDate > latestDate ? user : latest;
+                    });
+                    document.getElementById('lastUserEmail').textContent = lastUser.email;
+                    document.getElementById('lastUserName').textContent = `${lastUser.prenom} ${lastUser.nom}`;
+                } else {
+                    document.getElementById('lastUserEmail').textContent = '-';
+                    document.getElementById('lastUserName').textContent = '-';
+                }
             }
 
             // 🔍 Filtrer les utilisateurs
@@ -299,34 +301,53 @@
                 const role = document.getElementById('role').value;
                 const password = document.getElementById('password').value;
 
+                const utilisateur = {
+                    email: email,
+                    nom: nom,
+                    prenom: prenom,
+                    role: role,
+                    motDePasse: password
+                };
+
                 if (editingUserId) {
                     // 🔄 Modification
-                    const user = users.find(u => u.id === editingUserId);
-                    if (user) {
-                        user.email = email;
-                        user.nom = nom;
-                        user.prenom = prenom;
-                        user.role = role;
-                        if (password) user.mot_de_passe = password; // En réalité, on hasherait le mot de passe
-                    }
-                    alert('✅ Utilisateur modifié avec succès !');
+                    fetch(`/habitago/users/api/${editingUserId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(utilisateur)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert('✅ Utilisateur modifié avec succès !');
+                            closeUserModal();
+                            loadUsers();
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('❌ Erreur lors de la modification de l\'utilisateur.');
+                        });
                 } else {
                     // ➕ Création
-                    const newUser = {
-                        id: Math.max(...users.map(u => u.id)) + 1,
-                        email: email,
-                        nom: nom,
-                        prenom: prenom,
-                        role: role,
-                        date_creation: new Date().toISOString().split('T')[0],
-                        mot_de_passe: password || 'default_password'
-                    };
-                    users.push(newUser);
-                    alert('✅ Nouvel utilisateur créé avec succès !');
+                    fetch('/habitago/users/api', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(utilisateur)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert('✅ Nouvel utilisateur créé avec succès !');
+                            closeUserModal();
+                            loadUsers();
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('❌ Erreur lors de la création de l\'utilisateur.');
+                        });
                 }
-
-                closeUserModal();
-                loadUsers();
             }
 
             // 🗑️ Supprimer un utilisateur
@@ -335,9 +356,17 @@
                 if (!user) return;
 
                 if (confirm(`Êtes-vous sûr de vouloir supprimer ${user.prenom} ${user.nom} ?`)) {
-                    users = users.filter(u => u.id !== userId);
-                    alert('✅ Utilisateur supprimé avec succès !');
-                    loadUsers();
+                    fetch(`/habitago/users/api/${userId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(() => {
+                            alert('✅ Utilisateur supprimé avec succès !');
+                            loadUsers();
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('❌ Erreur lors de la suppression de l\'utilisateur.');
+                        });
                 }
             }
 
