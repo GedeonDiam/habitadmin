@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{app-layout}" lang="fr">
+
+<head>
+    <title>Dashboard Global - HabitAdmin</title>
+</head>
+
+<body>
+    <th:block layout:fragment="pageTitle">📊 Dashboard Global</th:block>
+
+    <th:block layout:fragment="content">
+        <!-- 💡 Intention & Vision -->
+        <div class="mb-8 bg-green-50 border border-green-100 rounded-xl p-6 shadow-sm">
+            <h2 class="text-xl font-bold text-green-800 mb-2">Centralisation Administrative & Communication</h2>
+            <p class="text-green-700 text-sm leading-relaxed">
+                HabitAdmin centralise les échanges pour améliorer le suivi des demandes et la qualité du service. 
+                Fini les supports dispersés : tout se passe ici pour une meilleure réactivité et une communication fluide entre étudiants et gestionnaires.
+            </p>
+        </div>
+
+        <!-- 📈 Statistiques Globales -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="p-2 bg-orange-100 text-orange-600 rounded-lg"><i class="fas fa-clock"></i></span>
+                    <span class="text-sm font-medium text-gray-500">Demandes en attente</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">12</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="p-2 bg-blue-100 text-blue-600 rounded-lg"><i class="fas fa-comments"></i></span>
+                    <span class="text-sm font-medium text-gray-500">Messages non lus</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">5</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="p-2 bg-green-100 text-green-600 rounded-lg"><i class="fas fa-file-contract"></i></span>
+                    <span class="text-sm font-medium text-gray-500">Contrats actifs</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">145</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="p-2 bg-purple-100 text-purple-600 rounded-lg"><i class="fas fa-users"></i></span>
+                    <span class="text-sm font-medium text-gray-500">Total Résidents</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-800">158</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 📋 Suivi des Demandes Administratifs -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-clipboard-list mr-2 text-green-500"></i> Suivi des Demandes
+                        </h3>
+                        <a href="#" class="text-xs text-green-600 font-semibold hover:underline">Voir tout le registre</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-3">Étudiant</th>
+                                    <th class="px-6 py-3">Type</th>
+                                    <th class="px-6 py-3">Date</th>
+                                    <th class="px-6 py-3">Statut</th>
+                                    <th class="px-6 py-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-xs font-bold text-gray-600">JD</div>
+                                            <span class="font-medium text-gray-900">Jean Dupont</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600">Attestation de loyer</td>
+                                    <td class="px-6 py-4 text-gray-500">Aujourd'hui</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] font-bold">À TRAITER</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-green-600 hover:text-green-800 font-medium">Répondre</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-xs font-bold text-gray-600">SM</div>
+                                            <span class="font-medium text-gray-900">Sarah Martin</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600">Problème Chauffage</td>
+                                    <td class="px-6 py-4 text-gray-500">Hier</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">EN COURS</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-green-600 hover:text-green-800 font-medium">Détails</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-xs font-bold text-gray-600">AL</div>
+                                            <span class="font-medium text-gray-900">Arthur Leroy</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600">Renouvellement Bail</td>
+                                    <td class="px-6 py-4 text-gray-500">02/03/2026</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold">TERMINÉ</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-green-600 hover:text-green-800 font-medium">Consulter</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 📢 Espace Communication (Dernières Annonces) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-bullhorn mr-2 text-blue-500"></i> Communication Résidence
+                        </h3>
+                        <button class="px-3 py-1 bg-green-admin text-white rounded-lg text-xs font-bold hover:bg-green-dark transition">Poster une annonce</button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex space-x-4 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-400">
+                            <div class="flex-shrink-0 text-blue-500 pt-1"><i class="fas fa-info-circle"></i></div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Maintenance Ascenseur</h4>
+                                <p class="text-xs text-gray-600 mt-1">L'ascenseur du bloc B sera en maintenance ce vendredi 20 mars entre 10h et 14h.</p>
+                                <p class="text-[10px] text-gray-400 mt-2">Publié il y a 2 heures</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4 p-4 bg-gray-50 rounded-lg border-l-4 border-green-400">
+                            <div class="flex-shrink-0 text-green-500 pt-1"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Quittances disponibles</h4>
+                                <p class="text-xs text-gray-600 mt-1">Toutes les quittances du mois de Février sont désormais disponibles sur vos espaces personnels.</p>
+                                <p class="text-[10px] text-gray-400 mt-2">Publié hier</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⚡ Raccourcis & Flux de Messages -->
+            <div class="space-y-6">
+                <!-- Raccourcis Rapides -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Outils Rapides</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="/app/habitago/users" class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-green-50 hover:text-green-700 transition">
+                            <i class="fas fa-user-plus mb-2 text-lg"></i>
+                            <span class="text-xs font-medium text-center">Inscrire Résident</span>
+                        </a>
+                        <a href="/app/habitago/contracts" class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-green-50 hover:text-green-700 transition">
+                            <i class="fas fa-file-invoice-dollar mb-2 text-lg"></i>
+                            <span class="text-xs font-medium text-center">Gérer Contrats</span>
+                        </a>
+                        <a href="#" class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-green-50 hover:text-green-700 transition">
+                            <i class="fas fa-envelope-open-text mb-2 text-lg"></i>
+                            <span class="text-xs font-medium text-center">Exporter Rapports</span>
+                        </a>
+                        <a href="/settings" class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl hover:bg-green-50 hover:text-green-700 transition">
+                            <i class="fas fa-cogs mb-2 text-lg"></i>
+                            <span class="text-xs font-medium text-center">Configuration</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Discussion & Feed -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-[400px]">
+                    <h3 class="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Derniers Messages</h3>
+                    <div class="flex-1 overflow-y-auto space-y-4 pr-2">
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600 flex-shrink-0">ML</div>
+                            <div class="bg-gray-100 p-3 rounded-2xl rounded-tl-none">
+                                <p class="text-xs font-bold text-gray-800">Marc Lefèvre</p>
+                                <p class="text-xs text-gray-600 mt-1">Bonjour, j'ai envoyé ma quittance signée sur le portail.</p>
+                                <p class="text-[9px] text-gray-400 mt-1">10:45</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3 justify-end">
+                            <div class="bg-green-100 p-3 rounded-2xl rounded-tr-none">
+                                <p class="text-xs font-bold text-green-800">Moi (Admin)</p>
+                                <p class="text-xs text-gray-700 mt-1">C'est bien reçu, merci Marc !</p>
+                                <p class="text-[9px] text-gray-500 mt-1">11:02</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <div class="relative">
+                            <input type="text" placeholder="Répondre rapidement..." class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-4 pr-10 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-green-admin">
+                            <button class="absolute right-2 top-1.5 text-green-admin hover:text-green-dark">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+
+</html>

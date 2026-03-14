@@ -25,11 +25,15 @@ public class AdminUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // Charger l'administrateur par email depuis la base de données
+        System.out.println("🔍 Tentative de chargement de l'admin: [" + username + "]");
         Admin admin = adminRepository.findByEmail(username);
         
         if (admin == null) {
+            System.out.println("❌ Admin non trouvé pour l'email: [" + username + "]");
             throw new UsernameNotFoundException("Admin non trouvé: " + username);
         }
+
+        System.out.println("✅ Admin trouvé: [" + admin.getEmail() + "], Hash: [" + admin.getMotDePasse() + "], Actif: [" + admin.getActif() + "]");
 
         // Convertir le rôle en GrantedAuthority
         List<GrantedAuthority> authorities = new ArrayList<>();

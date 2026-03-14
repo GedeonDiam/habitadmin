@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{app-layout}" lang="fr">
+
+<head>
+    <title>HabitaGo - Gestion du logement</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
+        }
+
+        .badge-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge-paid {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .badge-late {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+    </style>
+</head>
+
+<body>
+    <th:block layout:fragment="pageTitle">
+        <div class="flex items-center justify-between">
+            <div>
+                <span class="text-2xl font-bold text-gray-900">🏠 HabitaGo</span>
+                <p class="text-sm text-gray-500 mt-1">Gérez votre logement et vos dépenses</p>
+            </div>
+            <div class="flex space-x-3">
+                <button
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm font-medium">
+                    📄 Nouvelle facture
+                </button>
+                <button
+                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm font-medium">
+                    🔧 Signaler un problème
+                </button>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="content">
+        <!-- Message de Bienvenue Dynamique -->
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Bonjour, <span th:text="${#authentication != null ? #authentication.name : 'Étudiant'}">Étudiant</span> !</h2>
+        </div>
+
+        <!-- ALERTE LOYER -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <span class="text-yellow-400 text-xl">⏰</span>
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm text-yellow-700">
+                        <span class="font-bold">Prochain loyer :</span> Dans 5 jours (<span th:text="${stats.loyerMoyen} + '€'">750€</span>) - Pensez à programmer votre
+                        virement
+                    </p>
+                </div>
+                <div class="ml-4">
+                    <button
+                        class="text-sm bg-yellow-400 text-yellow-900 px-3 py-1 rounded hover:bg-yellow-500 transition font-medium">
+                        Payer maintenant
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTIQUES RAPIDES - 4 CARTES -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <!-- Carte 1: Loyer mensuel -->
+            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-blue-500">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-500 text-sm font-medium">Loyer mensuel</span>
+                    <span class="text-blue-500 text-xl">🏠</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <span class="text-2xl font-bold text-gray-900" th:text="${stats.loyerMoyen} + ' €'">750 €</span>
+                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">Stable</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">Charges comprises</div>
+            </div>
+
+            <!-- Carte 2: Électricité du mois -->
+            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-yellow-500">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-500 text-sm font-medium">Électricité</span>
+                    <span class="text-yellow-500 text-xl">⚡</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <span class="text-2xl font-bold text-gray-900">65 €</span>
+                    <span class="text-xs text-red-500 bg-red-50 px-2 py-1 rounded">+12%</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">Consommation : 320 kWh</div>
+            </div>
+
+            <!-- Carte 3: Eau -->
+            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-blue-300">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-500 text-sm font-medium">Eau</span>
+                    <span class="text-blue-300 text-xl">💧</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <span class="text-2xl font-bold text-gray-900">22 €</span>
+                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">-3%</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">12 m³ consommés</div>
+            </div>
+
+            <!-- Carte 4: Charges locatives -->
+            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-purple-500">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-500 text-sm font-medium">Charges</span>
+                    <span class="text-purple-500 text-xl">📦</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <span class="text-2xl font-bold text-gray-900">45 €</span>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Provision</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">Ordures, entretien</div>
+            </div>
+        </div>
+
+        <!-- SECTION PRINCIPALE - 2 COLONNES -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+            <!-- COLONNE GAUCHE - 2/3 -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Répartition de la consommation (Doughnut - Ultra Léger) -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-900">📊 Répartition Énergie vs Eau - Ce mois</h3>
+                        <div class="flex items-center space-x-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <span>Historique :</span>
+                            <div class="flex space-x-1 h-3 items-end">
+                                <div class="w-1 bg-blue-200 h-1"></div>
+                                <div class="w-1 bg-blue-300 h-2"></div>
+                                <div class="w-1 bg-blue-400 h-1.5"></div>
+                                <div class="w-1 bg-blue-500 h-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                        <div class="w-48 h-48">
+                            <canvas id="energyDoughnut"></canvas>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Électricité</p>
+                                    <p class="text-sm font-bold text-gray-900">320 kWh (75%)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-blue-400"></div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Eau</p>
+                                    <p class="text-sm font-bold text-gray-900">12 m³ (25%)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dernières factures -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                        <h3 class="font-bold text-gray-900">📄 Dernières factures</h3>
+                        <a href="#" class="text-sm text-green-600 hover:text-green-800">Voir tout →</a>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        <!-- Ligne factice mais propre -->
+                        <div class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl text-blue-500">📄</span>
+                                <div>
+                                    <p class="font-medium text-gray-900">Loyer - Mars 2026</p>
+                                    <p class="text-xs text-gray-500">Échéance : 05/03/2026</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">750€</span>
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Payée</span>
+                            </div>
+                        </div>
+                        <div class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl text-yellow-500">⚡</span>
+                                <div>
+                                    <p class="font-medium text-gray-900">EDF - Février 2026</p>
+                                    <p class="text-xs text-gray-500">Consommation : 340 kWh</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="font-bold text-gray-900">68€</span>
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Payée</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLONNE DROITE - 1/3 -->
+            <div class="space-y-6">
+
+                <!-- Carte du logement -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="text-xl mr-2">🏘️</span> Mon logement
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <span class="text-gray-500 w-24 text-sm">Adresse</span>
+                            <span class="text-sm font-medium text-gray-900">15 Rue des Lilas, 75020 Paris</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-gray-500 w-24 text-sm">Type</span>
+                            <span class="text-sm font-medium text-gray-900">Appartement T3 - 52m²</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-gray-500 w-24 text-sm">DPE</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Classe
+                                C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prochains paiements -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="text-xl mr-2">📅</span> Prochains paiements
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div>
+                                <p class="font-medium text-gray-900">Loyer Avril</p>
+                                <p class="text-xs text-gray-500">Dans 5 jours</p>
+                            </div>
+                            <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">750€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incidents en cours -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                        <span class="text-xl mr-2">🔧</span> Incidents en cours
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between border-l-4 border-yellow-400 pl-3">
+                            <div>
+                                <p class="font-medium text-gray-900">Radiateur en panne</p>
+                                <p class="text-xs text-gray-500">Signalé le 05/03</p>
+                            </div>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">En cours</span>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        + Signaler un nouveau problème
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION BUDGET MENSUEL -->
+        <div class="bg-white rounded-lg shadow p-5">
+            <h3 class="font-bold text-gray-900 mb-4">💰 Suivi budgétaire du mois</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Logement</p>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">795€</span>
+                        <span class="text-sm text-gray-600">/ 950€</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 84%"></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Énergie</p>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-900">65€</span>
+                        <span class="text-sm text-gray-600">/ 80€</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 81%"></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Autres</p>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-900">53€</span>
+                        <span class="text-sm text-gray-600">/ 120€</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 44%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // Graphique Doughnut pour la répartition (Ultra performant)
+            const ctx = document.getElementById('energyDoughnut').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Électricité', 'Eau'],
+                    datasets: [{
+                        data: [75, 25],
+                        backgroundColor: ['#FBBF24', '#60A5FA'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false, // Désactive l'animation pour éviter le lag
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    cutout: '70%'
+                }
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{app-layout}" lang="fr">
+
+<head>
+    <title>Gestion des Contrats - HabitAdmin</title>
+</head>
+
+<body>
+    <th:block layout:fragment="pageTitle">📋 Gestion des Contrats</th:block>
+
+    <th:block layout:fragment="content">
+        <div class="mb-8">
+            <p class="text-gray-600">Gérez tous les contrats de location</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher par ID utilisateur ou logement..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+            </div>
+            <button onclick="openAddContractModal()" class="px-6 py-2 text-white rounded-lg font-medium transition text-center w-full md:w-auto bg-green-admin hover:opacity-90">
+                ➕ Ajouter un contrat
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+                <p class="text-gray-600 text-sm">Contrats Actifs</p>
+                <p class="text-3xl font-bold text-green-600 mt-1" th:text="${stats?.totalContratsActifs ?: 0}">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+                <p class="text-gray-600 text-sm">Loyer Moyen</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1" th:text="${stats?.loyerMoyen ?: 0} + '€'">0€</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+                <p class="text-gray-600 text-sm">Total Contrats</p>
+                <p class="text-3xl font-bold text-purple-600 mt-1">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ID Utilisateur</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">ID Logement</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date Début</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date Fin</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Loyer</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Statut</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contractsTableBody" class="divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

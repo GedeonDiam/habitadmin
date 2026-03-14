@@ -6,10 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Contrôleur pour la gestion de l'application Habitago
- * Routes : /app/habitago/*
- */
 @Controller
 @RequestMapping("/app/habitago")
 public class HabitagoController {
@@ -26,20 +22,9 @@ public class HabitagoController {
      */
     @GetMapping("/users")
     public String users(Model model) {
-
         model.addAttribute("users", utilisateurService.getAllUsers());
         model.addAttribute("totalUsers", utilisateurService.getAllUsers().size());
-
         return "app/habitago/users";
-    }
-
-    /**
-     * Dashboard Habitago
-     * GET /app/habitago/dashboard
-     */
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "app/habitago/dashboard";
     }
 
     /**
@@ -68,5 +53,4 @@ public class HabitagoController {
     public String payments() {
         return "app/habitago/payments";
     }
-
 }

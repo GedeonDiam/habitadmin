@@ -15,21 +15,19 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final AdminUserDetailsService adminUserDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(AdminUserDetailsService adminUserDetailsService) {
+    public SecurityConfig(AdminUserDetailsService adminUserDetailsService, PasswordEncoder passwordEncoder) {
         this.adminUserDetailsService = adminUserDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(adminUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 

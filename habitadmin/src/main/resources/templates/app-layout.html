@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -90,14 +90,8 @@
                         <a href="/app/habitago/users" th:classappend="${activeApp == 'habitago' and activeSection == 'users' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>👥</span><span>Utilisateurs</span>
                         </a>
-                        <a href="/app/habitago/properties" th:classappend="${activeApp == 'habitago' and activeSection == 'properties' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
-                            <span>🏘️</span><span>Logements</span>
-                        </a>
                         <a href="/app/habitago/contracts" th:classappend="${activeApp == 'habitago' and activeSection == 'contracts' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>📋</span><span>Contrats</span>
-                        </a>
-                        <a href="/app/habitago/payments" th:classappend="${activeApp == 'habitago' and activeSection == 'payments' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
-                            <span>💰</span><span>Paiements</span>
                         </a>
                         <!-- <a href="/app/habitago/incidents" th:classappend="${activeApp == 'habitago' and activeSection == 'incidents' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>🔴</span><span>Incidents</span>
@@ -174,14 +168,15 @@
             <div class="flex items-center space-x-4">
                 <button class="text-gray-600 hover:text-gray-900 text-lg">🔔</button>
                 <div class="relative">
-                    <div id="avatar-btn" class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer hover:bg-green-dark transition-colors" th:text="${#authentication.principal.prenom?.substring(0,1)?.toUpperCase() ?: 'A'}">
+                    <div id="avatar-btn" class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer hover:bg-green-dark transition-colors" 
+                         th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom?.substring(0,1)?.toUpperCase() : 'A'}">
                         A
                     </div>
                     <!-- Dropdown Menu -->
                     <div id="avatar-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                         <div class="px-4 py-3 border-b border-gray-200">
-                            <p class="text-sm text-gray-700 font-medium" th:text="${#authentication.principal.nom}">Utilisateur</p>
-                            <p class="text-xs text-gray-600" th:text="${#authentication.principal.username}">email@example.com</p>
+                            <p class="text-sm text-gray-700 font-medium" th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.nom : 'Utilisateur'}">Utilisateur</p>
+                            <p class="text-xs text-gray-600" th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.username : ''}">email@example.com</p>
                         </div>
                         <a href="/settings" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors text-sm">
                             <span>⚙️</span>
@@ -199,7 +194,9 @@
         <!-- Page Content -->
         <div class="flex-1 overflow-auto">
             <div class="max-w-7xl mx-auto p-8">
-                <th:block th:replace="${content}"></th:block>
+                <div layout:fragment="content">
+                    <th:block th:replace="${content}"></th:block>
+                </div>
             </div>
         </div>
     </main>
