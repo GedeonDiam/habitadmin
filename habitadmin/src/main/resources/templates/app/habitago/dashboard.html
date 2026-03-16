@@ -57,7 +57,7 @@
         </div>
     </th:block>
 
-    <th:block layout:fragment="content">
+    <th:block layout:fragment="content" th:with="statsMap=${stats}, conso=${statsMap.consommationStats}, contratStats=${statsMap.contratStats}, derniers=${statsMap.derniersLogements}">
         <!-- Message de Bienvenue Dynamique -->
         <div class="mb-6">
             <h2 class="text-xl font-bold text-gray-800">Bonjour, <span th:text="${#authentication != null ? #authentication.name : 'Étudiant'}">Étudiant</span> !</h2>
@@ -86,56 +86,56 @@
 
         <!-- STATISTIQUES RAPIDES - 4 CARTES -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <!-- Carte 1: Loyer mensuel -->
+            <!-- Carte 1: Logements -->
             <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-blue-500">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Loyer mensuel</span>
+                    <span class="text-gray-500 text-sm font-medium">Logements</span>
                     <span class="text-blue-500 text-xl">🏠</span>
                 </div>
                 <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900" th:text="${stats.loyerMoyen} + ' €'">750 €</span>
-                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">Stable</span>
+                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalLogements}">0</span>
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded">Total</span>
                 </div>
-                <div class="mt-2 text-xs text-gray-500">Charges comprises</div>
+                <div class="mt-2 text-xs text-gray-500">Actuellement en base</div>
             </div>
 
-            <!-- Carte 2: Électricité du mois -->
+            <!-- Carte 2: Utilisateurs -->
+            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-green-500">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-gray-500 text-sm font-medium">Utilisateurs</span>
+                    <span class="text-green-500 text-xl">👥</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalUtilisateurs}">0</span>
+                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">Inscrits</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-500">Données de la base</div>
+            </div>
+
+            <!-- Carte 3: Contrats actifs -->
             <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-yellow-500">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Électricité</span>
-                    <span class="text-yellow-500 text-xl">⚡</span>
+                    <span class="text-gray-500 text-sm font-medium">Contrats actifs</span>
+                    <span class="text-yellow-500 text-xl">📃</span>
                 </div>
                 <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900">65 €</span>
-                    <span class="text-xs text-red-500 bg-red-50 px-2 py-1 rounded">+12%</span>
+                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalContratsActifs}">0</span>
+                    <span class="text-xs text-yellow-500 bg-yellow-50 px-2 py-1 rounded">En cours</span>
                 </div>
-                <div class="mt-2 text-xs text-gray-500">Consommation : 320 kWh</div>
+                <div class="mt-2 text-xs text-gray-500">Vérifié avec les contrats réels</div>
             </div>
 
-            <!-- Carte 3: Eau -->
-            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-blue-300">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Eau</span>
-                    <span class="text-blue-300 text-xl">💧</span>
-                </div>
-                <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900">22 €</span>
-                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">-3%</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">12 m³ consommés</div>
-            </div>
-
-            <!-- Carte 4: Charges locatives -->
+            <!-- Carte 4: Loyer moyen -->
             <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-purple-500">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Charges</span>
-                    <span class="text-purple-500 text-xl">📦</span>
+                    <span class="text-gray-500 text-sm font-medium">Loyer moyen</span>
+                    <span class="text-purple-500 text-xl">💶</span>
                 </div>
                 <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900">45 €</span>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Provision</span>
+                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.loyerMoyen != null ? statsMap.loyerMoyen + ' €' : 'N/A'}">0 €</span>
+                    <span class="text-xs text-purple-500 bg-purple-50 px-2 py-1 rounded">Base</span>
                 </div>
-                <div class="mt-2 text-xs text-gray-500">Ordures, entretien</div>
+                <div class="mt-2 text-xs text-gray-500">Calculé depuis contrats</div>
             </div>
         </div>
 
@@ -168,14 +168,14 @@
                                 <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                                 <div>
                                     <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Électricité</p>
-                                    <p class="text-sm font-bold text-gray-900">320 kWh (75%)</p>
+                                    <p id="electricStat" class="text-sm font-bold text-gray-900" th:text="${conso.totaux['ELECTRICITE'] != null ? conso.totaux['ELECTRICITE'] + ' kWh' : '0 kWh'}">0 kWh</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <div class="w-3 h-3 rounded-full bg-blue-400"></div>
                                 <div>
                                     <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Eau</p>
-                                    <p class="text-sm font-bold text-gray-900">12 m³ (25%)</p>
+                                    <p id="eauStat" class="text-sm font-bold text-gray-900" th:text="${conso.totaux['EAU'] != null ? conso.totaux['EAU'] + ' m³' : '0 m³'}">0 m³</p>
                                 </div>
                             </div>
                         </div>
@@ -188,34 +188,19 @@
                         <h3 class="font-bold text-gray-900">📄 Dernières factures</h3>
                         <a href="#" class="text-sm text-green-600 hover:text-green-800">Voir tout →</a>
                     </div>
-                    <div class="divide-y divide-gray-200">
-                        <!-- Ligne factice mais propre -->
-                        <div class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
+                    <div th:if="${#lists.isEmpty(derniers)}" class="px-5 py-4 text-gray-500">Aucun logement récent à afficher</div>
+                    <div class="divide-y divide-gray-200" th:if="${!#lists.isEmpty(derniers)}">
+                        <div th:each="logement : ${derniers}" class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
                             <div class="flex items-center space-x-4">
-                                <span class="text-xl text-blue-500">📄</span>
+                                <span class="text-xl text-blue-500">🏘️</span>
                                 <div>
-                                    <p class="font-medium text-gray-900">Loyer - Mars 2026</p>
-                                    <p class="text-xs text-gray-500">Échéance : 05/03/2026</p>
+                                    <p class="font-medium text-gray-900" th:text="${logement.adresse} + ' - ' + ${logement.ville}">15 Rue des Lilas, Paris</p>
+                                    <p class="text-xs text-gray-500" th:text="${logement.typeLogement} + ' - ' + ${logement.codePostal}">Appartement T3 - 75020</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">750€</span>
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Payée</span>
-                            </div>
-                        </div>
-                        <div class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
-                            <div class="flex items-center space-x-4">
-                                <span class="text-xl text-yellow-500">⚡</span>
-                                <div>
-                                    <p class="font-medium text-gray-900">EDF - Février 2026</p>
-                                    <p class="text-xs text-gray-500">Consommation : 340 kWh</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="font-bold text-gray-900">68€</span>
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Payée</span>
+                                <span class="font-bold text-gray-900">Enregistré</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">OK</span>
                             </div>
                         </div>
                     </div>
@@ -230,21 +215,21 @@
                     <h3 class="font-bold text-gray-900 mb-4 flex items-center">
                         <span class="text-xl mr-2">🏘️</span> Mon logement
                     </h3>
-                    <div class="space-y-3">
+                    <div th:if="${!#lists.isEmpty(derniers)}" class="space-y-3">
                         <div class="flex items-start">
                             <span class="text-gray-500 w-24 text-sm">Adresse</span>
-                            <span class="text-sm font-medium text-gray-900">15 Rue des Lilas, 75020 Paris</span>
+                            <span class="text-sm font-medium text-gray-900" th:text="${derniers[0].adresse} + ', ' + ${derniers[0].ville}">15 Rue des Lilas, Paris</span>
                         </div>
                         <div class="flex items-start">
                             <span class="text-gray-500 w-24 text-sm">Type</span>
-                            <span class="text-sm font-medium text-gray-900">Appartement T3 - 52m²</span>
+                            <span class="text-sm font-medium text-gray-900" th:text="${derniers[0].typeLogement} + ' - ' + ${derniers[0].codePostal}">Appartement T3 - 75020</span>
                         </div>
                         <div class="flex items-start">
                             <span class="text-gray-500 w-24 text-sm">DPE</span>
-                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Classe
-                                C</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Classe C</span>
                         </div>
                     </div>
+                    <div th:if="${#lists.isEmpty(derniers)}" class="text-sm text-gray-500">Aucun logement enregistré dans la base.</div>
                 </div>
 
                 <!-- Prochains paiements -->
@@ -325,12 +310,18 @@
             /*<![CDATA[*/
             // Graphique Doughnut pour la répartition (Ultra performant)
             const ctx = document.getElementById('energyDoughnut').getContext('2d');
+            const electricTotal = /*[[${conso.totaux['ELECTRICITE'] != null ? conso.totaux['ELECTRICITE'] : 0}]]*/ 0;
+            const eauTotal = /*[[${conso.totaux['EAU'] != null ? conso.totaux['EAU'] : 0}]]*/ 0;
+            const totalConso = electricTotal + eauTotal;
+            const electricPercent = totalConso > 0 ? Math.round((electricTotal / totalConso) * 100) : 0;
+            const eauPercent = totalConso > 0 ? 100 - electricPercent : 0;
+
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Électricité', 'Eau'],
                     datasets: [{
-                        data: [75, 25],
+                        data: [electricTotal, eauTotal],
                         backgroundColor: ['#FBBF24', '#60A5FA'],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -347,6 +338,11 @@
                     cutout: '70%'
                 }
             });
+
+            if (document.getElementById('electricStat') && document.getElementById('eauStat')) {
+                document.getElementById('electricStat').textContent = electricTotal + ' kWh (' + electricPercent + '%)';
+                document.getElementById('eauStat').textContent = eauTotal + ' m³ (' + eauPercent + '%)';
+            }
             /*]]>*/
         </script>
     </th:block>
