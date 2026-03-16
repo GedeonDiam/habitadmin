@@ -83,12 +83,15 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                         </svg>
                     </button>
-                    <div id="habitago-menu" class="space-y-1 hidden sidebar-bg-active">
+                    <div id="habitago-menu" th:classappend="${activeApp == 'habitago' ? '' : 'hidden'}" class="space-y-1 sidebar-bg-active">
                         <a href="/app/habitago/dashboard" th:classappend="${activeApp == 'habitago' and activeSection == 'dashboard' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>📊</span><span>Dashboard</span>
                         </a>
                         <a href="/app/habitago/users" th:classappend="${activeApp == 'habitago' and activeSection == 'users' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>👥</span><span>Utilisateurs</span>
+                        </a>
+                        <a href="/app/habitago/logements" th:classappend="${activeApp == 'habitago' and activeSection == 'logements' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
+                            <span>🏘️</span><span>Logements</span>
                         </a>
                         <a href="/app/habitago/contracts" th:classappend="${activeApp == 'habitago' and activeSection == 'contracts' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>📋</span><span>Contrats</span>
@@ -113,7 +116,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                         </svg>
                     </button>
-                    <div id="habitagreen-menu" class="space-y-1 hidden sidebar-bg-active">
+                    <div id="habitagreen-menu" th:classappend="${activeApp == 'habitagreen' ? '' : 'hidden'}" class="space-y-1 sidebar-bg-active">
                         <a href="/app/habitagreen/dashboard" th:classappend="${activeApp == 'habitagreen' and activeSection == 'dashboard' ? 'bg-green-admin text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'}" class="flex items-center space-x-3 px-4 py-2 rounded submenu-item transition-all text-sm">
                             <span>🌱</span><span>Dashboard Écologique</span>
                         </a>
@@ -218,14 +221,14 @@
 
         // Expand active app menu on load
         function expandActiveMenu() {
-            const activeApp = document.querySelector('[data-toggle]').closest('.space-y-1');
-            if (activeApp) {
-                const activeMenu = activeApp.querySelector('[id$="-menu"]');
-                if (activeMenu && !activeMenu.classList.contains('hidden')) {
-                    const toggleId = activeMenu.id.replace('-menu', '');
-                    const icon = document.getElementById(toggleId + '-icon');
-                    if (icon) icon.style.transform = 'rotate(180deg)';
-                }
+            const habitagoMenu = document.getElementById('habitago-menu');
+            const habitagreenMenu = document.getElementById('habitagreen-menu');
+            
+            if (habitagoMenu && !habitagoMenu.classList.contains('hidden')) {
+                document.getElementById('habitago-icon').style.transform = 'rotate(180deg)';
+            }
+            if (habitagreenMenu && !habitagreenMenu.classList.contains('hidden')) {
+                document.getElementById('habitagreen-icon').style.transform = 'rotate(180deg)';
             }
         }
 

@@ -9,10 +9,8 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Authentication authentication) {
-        // Si l'utilisateur n'est pas connecté, le rediriger vers la page de login
-        // (ceci est géré par Spring Security avec authorizeHttpRequests)
-        // Si connecté, rediriger vers le dashboard
-        return "redirect:/app/habitago/dashboard";
+        // Rediriger vers le dashboard global après connexion
+        return "redirect:/app/dashboard";
     }
     
     @GetMapping("/app/dashboard")

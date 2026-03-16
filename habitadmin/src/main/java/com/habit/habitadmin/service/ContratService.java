@@ -4,6 +4,7 @@ import com.habit.habitadmin.model.Contrat;
 import com.habit.habitadmin.repository.ContratRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -51,5 +52,19 @@ public class ContratService {
         stats.put("parStatut", statsMap);
         
         return stats;
+    }
+
+    public List<Contrat> getExpiringSoon() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(30);
+        return contratRepository.findExpiringSoon(start, end);
+    }
+
+    public long countActiveTenants() {
+        return contratRepository.countUniqueActiveTenants();
+    }
+
+    public List<Long> getOccupiedLogementIds() {
+        return contratRepository.findOccupiedLogementIds();
     }
 }

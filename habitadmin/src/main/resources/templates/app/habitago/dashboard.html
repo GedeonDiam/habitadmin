@@ -3,36 +3,21 @@
     layout:decorate="~{app-layout}" lang="fr">
 
 <head>
-    <title>HabitaGo - Gestion du logement</title>
+    <title>HabitaGo - Tableau de bord</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .stat-card {
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
         }
-
         .stat-card:hover {
             transform: translateY(-2px);
         }
-
-        .progress-bar {
-            height: 8px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
-        }
-
-        .badge-pending {
-            background-color: #FEF3C7;
-            color: #92400E;
-        }
-
-        .badge-paid {
-            background-color: #D1FAE5;
-            color: #065F46;
-        }
-
-        .badge-late {
-            background-color: #FEE2E2;
-            color: #991B1B;
+        .status-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -42,7 +27,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <span class="text-2xl font-bold text-gray-900">🏠 HabitaGo</span>
-                <p class="text-sm text-gray-500 mt-1">Gérez votre logement et vos dépenses</p>
+                <p class="text-sm text-gray-500 mt-1">Gestion locative et suivi opérationnel</p>
             </div>
             <div class="flex space-x-3">
                 <button
@@ -57,250 +42,177 @@
         </div>
     </th:block>
 
-    <th:block layout:fragment="content" th:with="statsMap=${stats}, conso=${statsMap.consommationStats}, contratStats=${statsMap.contratStats}, derniers=${statsMap.derniersLogements}">
-        <!-- Message de Bienvenue Dynamique -->
+    <th:block layout:fragment="content" th:with="statsMap=${stats}, conso=${statsMap.consommationStats}, contratStats=${statsMap.contratStats}, derniers=${statsMap.derniersLogements}, occupiedIds=${statsMap.occupiedLogementIds}">
+        <!-- Message de Bienvenue -->
         <div class="mb-6">
-            <h2 class="text-xl font-bold text-gray-800">Bonjour, <span th:text="${#authentication != null ? #authentication.name : 'Étudiant'}">Étudiant</span> !</h2>
+            <h2 class="text-xl font-bold text-gray-800">Bonjour, <span th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom : 'Étudiant'}">Étudiant</span> !</h2>
         </div>
 
-        <!-- ALERTE LOYER -->
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <span class="text-yellow-400 text-xl">⏰</span>
-                </div>
-                <div class="ml-3 flex-1">
-                    <p class="text-sm text-yellow-700">
-                        <span class="font-bold">Prochain loyer :</span> Dans 5 jours (<span th:text="${stats.loyerMoyen} + '€'">750€</span>) - Pensez à programmer votre
-                        virement
-                    </p>
-                </div>
-                <div class="ml-4">
-                    <button
-                        class="text-sm bg-yellow-400 text-yellow-900 px-3 py-1 rounded hover:bg-yellow-500 transition font-medium">
-                        Payer maintenant
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- STATISTIQUES RAPIDES - 4 CARTES -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <!-- STATISTIQUES RAPIDES - 3 CARTES (Logique mise à jour) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <!-- Carte 1: Logements -->
-            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-blue-500">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Logements</span>
-                    <span class="text-blue-500 text-xl">🏠</span>
+            <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Logements</span>
+                    <span class="p-2 bg-blue-100 text-blue-600 rounded-lg"><i class="fas fa-home"></i></span>
                 </div>
-                <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalLogements}">0</span>
-                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded">Total</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">Actuellement en base</div>
+                <p class="text-3xl font-bold text-gray-900" th:text="${statsMap.totalLogements}">0</p>
+                <p class="text-xs text-blue-500 mt-1">Total géré</p>
             </div>
 
-            <!-- Carte 2: Utilisateurs -->
-            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-green-500">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Utilisateurs</span>
-                    <span class="text-green-500 text-xl">👥</span>
+            <!-- Carte 2: Locataires (1 seul occupé simulation) -->
+            <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Locataires</span>
+                    <span class="p-2 bg-green-100 text-green-600 rounded-lg"><i class="fas fa-users"></i></span>
                 </div>
-                <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalUtilisateurs}">0</span>
-                    <span class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">Inscrits</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">Données de la base</div>
+                <p class="text-3xl font-bold text-gray-900" th:text="${statsMap.totalUtilisateurs}">0</p>
+                <p class="text-xs text-green-500 mt-1">Occupation actuelle</p>
             </div>
 
-            <!-- Carte 3: Contrats actifs -->
-            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-yellow-500">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Contrats actifs</span>
-                    <span class="text-yellow-500 text-xl">📃</span>
+            <!-- Carte 3: Contrats (Disponibles simulation) -->
+            <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Contrats</span>
+                    <span class="p-2 bg-purple-100 text-purple-600 rounded-lg"><i class="fas fa-file-contract"></i></span>
                 </div>
-                <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.totalContratsActifs}">0</span>
-                    <span class="text-xs text-yellow-500 bg-yellow-50 px-2 py-1 rounded">En cours</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">Vérifié avec les contrats réels</div>
-            </div>
-
-            <!-- Carte 4: Loyer moyen -->
-            <div class="stat-card bg-white rounded-lg shadow p-5 border-b-4 border-purple-500">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-gray-500 text-sm font-medium">Loyer moyen</span>
-                    <span class="text-purple-500 text-xl">💶</span>
-                </div>
-                <div class="flex items-end justify-between">
-                    <span class="text-2xl font-bold text-gray-900" th:text="${statsMap.loyerMoyen != null ? statsMap.loyerMoyen + ' €' : 'N/A'}">0 €</span>
-                    <span class="text-xs text-purple-500 bg-purple-50 px-2 py-1 rounded">Base</span>
-                </div>
-                <div class="mt-2 text-xs text-gray-500">Calculé depuis contrats</div>
+                <p class="text-3xl font-bold text-gray-900" th:text="${statsMap.totalContratsActifs}">0</p>
+                <p class="text-xs text-purple-500 mt-1">Logements disponibles</p>
             </div>
         </div>
 
-        <!-- SECTION PRINCIPALE - 2 COLONNES -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-
-            <!-- COLONNE GAUCHE - 2/3 -->
-            <div class="lg:col-span-2 space-y-6">
-
-                <!-- Répartition de la consommation (Doughnut - Ultra Léger) -->
-                <div class="bg-white rounded-lg shadow p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-900">📊 Répartition Énergie vs Eau - Ce mois</h3>
-                        <div class="flex items-center space-x-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                            <span>Historique :</span>
-                            <div class="flex space-x-1 h-3 items-end">
-                                <div class="w-1 bg-blue-200 h-1"></div>
-                                <div class="w-1 bg-blue-300 h-2"></div>
-                                <div class="w-1 bg-blue-400 h-1.5"></div>
-                                <div class="w-1 bg-blue-500 h-3"></div>
-                            </div>
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- COLONNE GAUCHE (2/3) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Bloc Analyse : Énergie & Maintenance -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-chart-pie mr-2 text-blue-500"></i> Analyse de l'État & Consommations
+                        </h3>
                     </div>
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-8">
-                        <div class="w-48 h-48">
-                            <canvas id="energyDoughnut"></canvas>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                <div>
-                                    <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Électricité</p>
-                                    <p id="electricStat" class="text-sm font-bold text-gray-900" th:text="${conso.totaux['ELECTRICITE'] != null ? conso.totaux['ELECTRICITE'] + ' kWh' : '0 kWh'}">0 kWh</p>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Graphique -->
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-40 h-40">
+                                    <canvas id="energyDoughnut"></canvas>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 mt-6 w-full text-center">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Elec</p>
+                                        <p class="text-xs font-bold" th:text="${conso.totaux['ELECTRICITE'] ?: 0} + ' kWh'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Eau</p>
+                                        <p class="text-xs font-bold" th:text="${conso.totaux['EAU'] ?: 0} + ' m³'"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Gaz</p>
+                                        <p class="text-xs font-bold" th:text="${conso.totaux['GAZ'] ?: 0} + ' kWh'"></p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <div class="w-3 h-3 rounded-full bg-blue-400"></div>
-                                <div>
-                                    <p class="text-xs text-gray-400 uppercase font-black tracking-widest">Eau</p>
-                                    <p id="eauStat" class="text-sm font-bold text-gray-900" th:text="${conso.totaux['EAU'] != null ? conso.totaux['EAU'] + ' m³' : '0 m³'}">0 m³</p>
+                            <!-- Maintenance stats -->
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase">Incidents Ouverts</p>
+                                        <p class="text-xl font-bold text-red-600" th:text="${stats.incidentStats['OUVERT']}">0</p>
+                                    </div>
+                                    <span class="text-red-500"><i class="fas fa-exclamation-triangle"></i></span>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase">En cours</p>
+                                        <p class="text-xl font-bold text-orange-500" th:text="${stats.incidentStats['EN_COURS']}">0</p>
+                                    </div>
+                                    <span class="text-orange-500"><i class="fas fa-tools"></i></span>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase">Résolus</p>
+                                        <p class="text-xl font-bold text-green-600" th:text="${stats.incidentStats['RESOLU']}">0</p>
+                                    </div>
+                                    <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Dernières factures -->
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-                        <h3 class="font-bold text-gray-900">📄 Dernières factures</h3>
-                        <a href="#" class="text-sm text-green-600 hover:text-green-800">Voir tout →</a>
+                <!-- Tableau des Logements -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="font-bold text-gray-800 italic">Dernières Mises en Ligne</h3>
+                        <a href="/app/habitago/logements" class="text-xs text-blue-600 hover:underline">Voir tout →</a>
                     </div>
-                    <div th:if="${#lists.isEmpty(derniers)}" class="px-5 py-4 text-gray-500">Aucun logement récent à afficher</div>
-                    <div class="divide-y divide-gray-200" th:if="${!#lists.isEmpty(derniers)}">
-                        <div th:each="logement : ${derniers}" class="px-5 py-4 flex items-center justify-between hover:bg-gray-50">
-                            <div class="flex items-center space-x-4">
-                                <span class="text-xl text-blue-500">🏘️</span>
-                                <div>
-                                    <p class="font-medium text-gray-900" th:text="${logement.adresse} + ' - ' + ${logement.ville}">15 Rue des Lilas, Paris</p>
-                                    <p class="text-xs text-gray-500" th:text="${logement.typeLogement} + ' - ' + ${logement.codePostal}">Appartement T3 - 75020</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="font-bold text-gray-900">Enregistré</span>
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">OK</span>
-                            </div>
-                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-3">Adresse</th>
+                                    <th class="px-6 py-3">Type</th>
+                                    <th class="px-6 py-3 text-right">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr th:each="logement : ${derniers}" class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium text-gray-900" th:text="${logement.adresse}">Adresse</p>
+                                        <p class="text-[10px] text-gray-500" th:text="${logement.ville}">Ville</p>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600" th:text="${logement.typeLogement}">Type</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <span th:if="${#lists.contains(occupiedIds, logement.id)}" 
+                                              class="status-badge bg-orange-100 text-orange-700">Occupé</span>
+                                        <span th:if="${!#lists.contains(occupiedIds, logement.id)}" 
+                                              class="status-badge bg-green-100 text-green-700">Disponible</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- COLONNE DROITE - 1/3 -->
-            <div class="space-y-6">
-
-                <!-- Carte du logement -->
-                <div class="bg-white rounded-lg shadow p-5">
-                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
-                        <span class="text-xl mr-2">🏘️</span> Mon logement
-                    </h3>
-                    <div th:if="${!#lists.isEmpty(derniers)}" class="space-y-3">
-                        <div class="flex items-start">
-                            <span class="text-gray-500 w-24 text-sm">Adresse</span>
-                            <span class="text-sm font-medium text-gray-900" th:text="${derniers[0].adresse} + ', ' + ${derniers[0].ville}">15 Rue des Lilas, Paris</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="text-gray-500 w-24 text-sm">Type</span>
-                            <span class="text-sm font-medium text-gray-900" th:text="${derniers[0].typeLogement} + ' - ' + ${derniers[0].codePostal}">Appartement T3 - 75020</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="text-gray-500 w-24 text-sm">DPE</span>
-                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">Classe C</span>
-                        </div>
+            <!-- COLONNE DROITE (1/3) -->
+            <div class="space-y-8">
+                <!-- Échéances -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-t-4 border-blue-500">
+                    <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">🔔 Échéances (30j)</h3>
+                    <div th:if="${#lists.isEmpty(stats.upcomingExpirations)}" class="py-6 text-center text-gray-400 text-xs italic">
+                        Aucune échéance proche.
                     </div>
-                    <div th:if="${#lists.isEmpty(derniers)}" class="text-sm text-gray-500">Aucun logement enregistré dans la base.</div>
-                </div>
-
-                <!-- Prochains paiements -->
-                <div class="bg-white rounded-lg shadow p-5">
-                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
-                        <span class="text-xl mr-2">📅</span> Prochains paiements
-                    </h3>
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-                            <div>
-                                <p class="font-medium text-gray-900">Loyer Avril</p>
-                                <p class="text-xs text-gray-500">Dans 5 jours</p>
+                        <div th:each="contrat : ${stats.upcomingExpirations}" class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-blue-900 text-xs" th:text="${contrat.utilisateur.prenom} + ' ' + ${contrat.utilisateur.nom}">Nom</span>
+                                <span class="text-[9px] text-blue-600 font-bold">FIN</span>
                             </div>
-                            <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">750€</span>
+                            <p class="text-[10px] text-blue-700" th:text="'Le ' + ${#temporals.format(contrat.dateFin, 'dd/MM/yyyy')}"></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Incidents en cours -->
-                <div class="bg-white rounded-lg shadow p-5">
-                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
-                        <span class="text-xl mr-2">🔧</span> Incidents en cours
-                    </h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between border-l-4 border-yellow-400 pl-3">
-                            <div>
-                                <p class="font-medium text-gray-900">Radiateur en panne</p>
-                                <p class="text-xs text-gray-500">Signalé le 05/03</p>
+                <!-- Incidents Récents -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">🔧 Incidents Récents</h3>
+                    <div th:if="${#lists.isEmpty(stats.recentIncidents)}" class="py-6 text-center text-gray-400 text-xs italic">
+                        Aucun incident récent.
+                    </div>
+                    <div class="space-y-4">
+                        <div th:each="incident : ${stats.recentIncidents}" class="border-l-2 border-gray-200 pl-3">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded" 
+                                      th:classappend="${incident.statut == 'OUVERT' ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}"
+                                      th:text="${incident.statut}">STATUT</span>
+                                <span class="text-[9px] text-gray-400" th:text="${#temporals.format(incident.dateCreation, 'dd/MM')}">01/01</span>
                             </div>
-                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">En cours</span>
+                            <p class="text-xs font-bold text-gray-800" th:text="${incident.titre}">Titre</p>
+                            <p class="text-[10px] text-gray-500 mt-0.5" th:text="${incident.description}"></p>
                         </div>
-                    </div>
-                    <button class="mt-4 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium">
-                        + Signaler un nouveau problème
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION BUDGET MENSUEL -->
-        <div class="bg-white rounded-lg shadow p-5">
-            <h3 class="font-bold text-gray-900 mb-4">💰 Suivi budgétaire du mois</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <p class="text-sm text-gray-500 mb-1">Logement</p>
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-gray-900" th:text="${stats.loyerMoyen} + '€'">795€</span>
-                        <span class="text-sm text-gray-600">/ 950€</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: 84%"></div>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500 mb-1">Énergie</p>
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-gray-900">65€</span>
-                        <span class="text-sm text-gray-600">/ 80€</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 81%"></div>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500 mb-1">Autres</p>
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-gray-900">53€</span>
-                        <span class="text-sm text-gray-600">/ 120€</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                        <div class="bg-green-500 h-2 rounded-full" style="width: 44%"></div>
                     </div>
                 </div>
             </div>
@@ -308,21 +220,18 @@
 
         <script th:inline="javascript">
             /*<![CDATA[*/
-            // Graphique Doughnut pour la répartition (Ultra performant)
             const ctx = document.getElementById('energyDoughnut').getContext('2d');
-            const electricTotal = /*[[${conso.totaux['ELECTRICITE'] != null ? conso.totaux['ELECTRICITE'] : 0}]]*/ 0;
-            const eauTotal = /*[[${conso.totaux['EAU'] != null ? conso.totaux['EAU'] : 0}]]*/ 0;
-            const totalConso = electricTotal + eauTotal;
-            const electricPercent = totalConso > 0 ? Math.round((electricTotal / totalConso) * 100) : 0;
-            const eauPercent = totalConso > 0 ? 100 - electricPercent : 0;
+            const electricTotal = /*[[${conso.totaux['ELECTRICITE'] ?: 0}]]*/ 0;
+            const eauTotal = /*[[${conso.totaux['EAU'] ?: 0}]]*/ 0;
+            const gazTotal = /*[[${conso.totaux['GAZ'] ?: 0}]]*/ 0;
 
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Électricité', 'Eau'],
+                    labels: ['Électricité', 'Eau', 'Gaz'],
                     datasets: [{
-                        data: [electricTotal, eauTotal],
-                        backgroundColor: ['#FBBF24', '#60A5FA'],
+                        data: [electricTotal, eauTotal, gazTotal],
+                        backgroundColor: ['#FBBF24', '#60A5FA', '#F97316'],
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
@@ -330,19 +239,12 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: false, // Désactive l'animation pour éviter le lag
                     plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
+                        legend: { display: false }
                     },
-                    cutout: '70%'
+                    cutout: '75%'
                 }
             });
-
-            if (document.getElementById('electricStat') && document.getElementById('eauStat')) {
-                document.getElementById('electricStat').textContent = electricTotal + ' kWh (' + electricPercent + '%)';
-                document.getElementById('eauStat').textContent = eauTotal + ' m³ (' + eauPercent + '%)';
-            }
             /*]]>*/
         </script>
     </th:block>
