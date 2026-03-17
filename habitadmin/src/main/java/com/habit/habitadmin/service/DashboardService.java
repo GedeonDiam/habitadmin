@@ -34,12 +34,10 @@ public class DashboardService {
         // Statistiques générales
         long totalLogements = logementService.getTotalLogements();
         
-        // Logique demandée : UN SEUL logement occupé
-        // Locataires = 1
-        // Contrats = Total des logements disponibles (Total - 1)
-        long occupiedCount = (totalLogements > 0) ? 1 : 0;
-        long locatairesCount = occupiedCount;
-        long availableContractsCount = (totalLogements > 0) ? totalLogements - 1 : 0;
+        // Données réelles depuis la BDD
+        List<Long> occupiedLogementIds = contratService.getOccupiedLogementIds();
+        long locatairesCount = utilisateurService.getTotalUsers();
+        long availableContractsCount = Math.max(0, totalLogements - occupiedLogementIds.size());
         
         stats.put("totalLogements", totalLogements);
         stats.put("totalUtilisateurs", locatairesCount); 
@@ -57,13 +55,8 @@ public class DashboardService {
         List<com.habit.habitadmin.model.Logement> derniersLogements = logementService.getLatestLogements();
         stats.put("derniersLogements", derniersLogements);
         
-        // Sélectionner UN SEUL logement aléatoire à marquer comme OCCUPÉ
-        List<Long> singleOccupiedId = new ArrayList<>();
-        if (derniersLogements != null && !derniersLogements.isEmpty()) {
-            int randomIndex = new Random().nextInt(derniersLogements.size());
-            singleOccupiedId.add(derniersLogements.get(randomIndex).getId());
-        }
-        stats.put("occupiedLogementIds", singleOccupiedId);
+        // Liste des IDs occupés pour le template
+        stats.put("occupiedLogementIds", occupiedLogementIds);
         
         // Statistiques de consommation
         stats.put("consommationStats", consommationService.getConsommationStats());

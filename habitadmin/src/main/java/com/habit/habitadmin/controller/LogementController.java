@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/app/habitago/properties")
+@RequestMapping("/app/habitago/logements")
 public class LogementController {
 
     private final LogementService logementService;

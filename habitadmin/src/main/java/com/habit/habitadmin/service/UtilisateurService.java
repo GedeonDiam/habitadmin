@@ -68,4 +68,9 @@ public class UtilisateurService {
     public void deleteUser(Long id) {
         utilisateurRepository.deleteById(id);
     }
+
+    // Récupérer le nombre total d'utilisateurs
+    public long getTotalUsers() {
+        return utilisateurRepository.count();
+    }
 }

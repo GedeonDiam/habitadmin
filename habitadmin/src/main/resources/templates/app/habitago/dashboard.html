@@ -9,9 +9,11 @@
         .stat-card {
             transition: all 0.2s ease;
         }
+
         .stat-card:hover {
             transform: translateY(-2px);
         }
+
         .status-badge {
             font-size: 0.7rem;
             font-weight: 700;
@@ -42,10 +44,13 @@
         </div>
     </th:block>
 
-    <th:block layout:fragment="content" th:with="statsMap=${stats}, conso=${statsMap.consommationStats}, contratStats=${statsMap.contratStats}, derniers=${statsMap.derniersLogements}, occupiedIds=${statsMap.occupiedLogementIds}">
+    <th:block layout:fragment="content"
+        th:with="statsMap=${stats}, conso=${statsMap.consommationStats}, contratStats=${statsMap.contratStats}, derniers=${statsMap.derniersLogements}, occupiedIds=${statsMap.occupiedLogementIds}">
         <!-- Message de Bienvenue -->
         <div class="mb-6">
-            <h2 class="text-xl font-bold text-gray-800">Bonjour, <span th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom : 'Étudiant'}">Étudiant</span> !</h2>
+            <h2 class="text-xl font-bold text-gray-800">Bonjour, <span
+                    th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom : 'Étudiant'}">Étudiant</span>
+                !</h2>
         </div>
 
         <!-- STATISTIQUES RAPIDES - 3 CARTES (Logique mise à jour) -->
@@ -63,28 +68,29 @@
             <!-- Carte 2: Locataires (1 seul occupé simulation) -->
             <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Locataires</span>
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Utilisateurs</span>
                     <span class="p-2 bg-green-100 text-green-600 rounded-lg"><i class="fas fa-users"></i></span>
                 </div>
                 <p class="text-3xl font-bold text-gray-900" th:text="${statsMap.totalUtilisateurs}">0</p>
-                <p class="text-xs text-green-500 mt-1">Occupation actuelle</p>
+                <p class="text-xs text-green-500 mt-1">Total utilisateurs</p>
             </div>
 
-            <!-- Carte 3: Contrats (Disponibles simulation) -->
+            <!-- Carte 3: Contrats (Disponibles) -->
             <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Contrats</span>
-                    <span class="p-2 bg-purple-100 text-purple-600 rounded-lg"><i class="fas fa-file-contract"></i></span>
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Contrats disponibles</span>
+                    <span class="p-2 bg-purple-100 text-purple-600 rounded-lg"><i
+                            class="fas fa-file-contract"></i></span>
                 </div>
                 <p class="text-3xl font-bold text-gray-900" th:text="${statsMap.totalContratsActifs}">0</p>
-                <p class="text-xs text-purple-500 mt-1">Logements disponibles</p>
+                <p class="text-xs text-purple-500 mt-1">Places libres</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- COLONNE GAUCHE (2/3) -->
             <div class="lg:col-span-2 space-y-8">
-                
+
                 <!-- Bloc Analyse : Énergie & Maintenance -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
@@ -102,7 +108,8 @@
                                 <div class="grid grid-cols-3 gap-4 mt-6 w-full text-center">
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase">Elec</p>
-                                        <p class="text-xs font-bold" th:text="${conso.totaux['ELECTRICITE'] ?: 0} + ' kWh'"></p>
+                                        <p class="text-xs font-bold"
+                                            th:text="${conso.totaux['ELECTRICITE'] ?: 0} + ' kWh'"></p>
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase">Eau</p>
@@ -116,24 +123,30 @@
                             </div>
                             <!-- Maintenance stats -->
                             <div class="space-y-4">
-                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                <div
+                                    class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
                                     <div>
                                         <p class="text-xs font-bold text-gray-400 uppercase">Incidents Ouverts</p>
-                                        <p class="text-xl font-bold text-red-600" th:text="${stats.incidentStats['OUVERT']}">0</p>
+                                        <p class="text-xl font-bold text-red-600"
+                                            th:text="${stats.incidentStats['OUVERT']}">0</p>
                                     </div>
                                     <span class="text-red-500"><i class="fas fa-exclamation-triangle"></i></span>
                                 </div>
-                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                <div
+                                    class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
                                     <div>
                                         <p class="text-xs font-bold text-gray-400 uppercase">En cours</p>
-                                        <p class="text-xl font-bold text-orange-500" th:text="${stats.incidentStats['EN_COURS']}">0</p>
+                                        <p class="text-xl font-bold text-orange-500"
+                                            th:text="${stats.incidentStats['EN_COURS']}">0</p>
                                     </div>
                                     <span class="text-orange-500"><i class="fas fa-tools"></i></span>
                                 </div>
-                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                                <div
+                                    class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
                                     <div>
                                         <p class="text-xs font-bold text-gray-400 uppercase">Résolus</p>
-                                        <p class="text-xl font-bold text-green-600" th:text="${stats.incidentStats['RESOLU']}">0</p>
+                                        <p class="text-xl font-bold text-green-600"
+                                            th:text="${stats.incidentStats['RESOLU']}">0</p>
                                     </div>
                                     <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
                                 </div>
@@ -153,8 +166,7 @@
                             <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider">
                                 <tr>
                                     <th class="px-6 py-3">Adresse</th>
-                                    <th class="px-6 py-3">Type</th>
-                                    <th class="px-6 py-3 text-right">Statut</th>
+                                    <th class="px-6 py-3 text-right">Type</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -163,13 +175,8 @@
                                         <p class="font-medium text-gray-900" th:text="${logement.adresse}">Adresse</p>
                                         <p class="text-[10px] text-gray-500" th:text="${logement.ville}">Ville</p>
                                     </td>
-                                    <td class="px-6 py-4 text-gray-600" th:text="${logement.typeLogement}">Type</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <span th:if="${#lists.contains(occupiedIds, logement.id)}" 
-                                              class="status-badge bg-orange-100 text-orange-700">Occupé</span>
-                                        <span th:if="${!#lists.contains(occupiedIds, logement.id)}" 
-                                              class="status-badge bg-green-100 text-green-700">Disponible</span>
-                                    </td>
+                                    <td class="px-6 py-4 text-right text-gray-600" th:text="${logement.typeLogement}">
+                                        Type</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -182,16 +189,20 @@
                 <!-- Échéances -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-t-4 border-blue-500">
                     <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">🔔 Échéances (30j)</h3>
-                    <div th:if="${#lists.isEmpty(stats.upcomingExpirations)}" class="py-6 text-center text-gray-400 text-xs italic">
+                    <div th:if="${#lists.isEmpty(stats.upcomingExpirations)}"
+                        class="py-6 text-center text-gray-400 text-xs italic">
                         Aucune échéance proche.
                     </div>
                     <div class="space-y-3">
-                        <div th:each="contrat : ${stats.upcomingExpirations}" class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <div th:each="contrat : ${stats.upcomingExpirations}"
+                            class="p-3 bg-blue-50 rounded-lg border border-blue-100">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-blue-900 text-xs" th:text="${contrat.utilisateur.prenom} + ' ' + ${contrat.utilisateur.nom}">Nom</span>
+                                <span class="font-bold text-blue-900 text-xs"
+                                    th:text="${contrat.utilisateur.prenom} + ' ' + ${contrat.utilisateur.nom}">Nom</span>
                                 <span class="text-[9px] text-blue-600 font-bold">FIN</span>
                             </div>
-                            <p class="text-[10px] text-blue-700" th:text="'Le ' + ${#temporals.format(contrat.dateFin, 'dd/MM/yyyy')}"></p>
+                            <p class="text-[10px] text-blue-700"
+                                th:text="'Le ' + ${#temporals.format(contrat.dateFin, 'dd/MM/yyyy')}"></p>
                         </div>
                     </div>
                 </div>
@@ -199,16 +210,18 @@
                 <!-- Incidents Récents -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">🔧 Incidents Récents</h3>
-                    <div th:if="${#lists.isEmpty(stats.recentIncidents)}" class="py-6 text-center text-gray-400 text-xs italic">
+                    <div th:if="${#lists.isEmpty(stats.recentIncidents)}"
+                        class="py-6 text-center text-gray-400 text-xs italic">
                         Aucun incident récent.
                     </div>
                     <div class="space-y-4">
                         <div th:each="incident : ${stats.recentIncidents}" class="border-l-2 border-gray-200 pl-3">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded" 
-                                      th:classappend="${incident.statut == 'OUVERT' ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}"
-                                      th:text="${incident.statut}">STATUT</span>
-                                <span class="text-[9px] text-gray-400" th:text="${#temporals.format(incident.dateCreation, 'dd/MM')}">01/01</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                    th:classappend="${incident.statut == 'OUVERT' ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}"
+                                    th:text="${incident.statut}">STATUT</span>
+                                <span class="text-[9px] text-gray-400"
+                                    th:text="${#temporals.format(incident.dateCreation, 'dd/MM')}">01/01</span>
                             </div>
                             <p class="text-xs font-bold text-gray-800" th:text="${incident.titre}">Titre</p>
                             <p class="text-[10px] text-gray-500 mt-0.5" th:text="${incident.description}"></p>
