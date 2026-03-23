@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/app/habitago/properties")
+@RequestMapping("/app/logements")
 public class LogementController {
     @Autowired
     private LogementService logementService;
@@ -20,7 +20,7 @@ public class LogementController {
     public String listLogements(Model model) {
         List<Logement> logements = logementService.getAllLogements();
         model.addAttribute("logements", logements);
-        return "app/habitago/properties";
+        return "app/logements";
     }
 
     @GetMapping("/new")
@@ -32,7 +32,7 @@ public class LogementController {
     @PostMapping
     public String createLogement(@ModelAttribute Logement logement) {
         logementService.createLogement(logement);
-        return "redirect:/app/habitago/properties";
+        return "redirect:/app/logements";
     }
 
     @GetMapping("/{id}/edit")
@@ -42,19 +42,19 @@ public class LogementController {
             model.addAttribute("logement", logement.get());
             return "app/habitago/property-form";
         }
-        return "redirect:/app/habitago/properties";
+        return "redirect:/app/logements";
     }
 
     @PostMapping("/{id}")
     public String updateLogement(@PathVariable Long id, @ModelAttribute Logement logement) {
         logementService.updateLogement(id, logement);
-        return "redirect:/app/habitago/properties";
+        return "redirect:/app/logements";
     }
 
     @GetMapping("/{id}/delete")
     public String deleteLogement(@PathVariable Long id) {
         logementService.deleteLogement(id);
-        return "redirect:/app/habitago/properties";
+        return "redirect:/app/logements";
     }
 
     @GetMapping("/search")
@@ -70,6 +70,6 @@ public class LogementController {
             logements = logementService.getAllLogements();
         }
         model.addAttribute("logements", logements);
-        return "app/habitago/properties";
+        return "app/logements";
     }
 }
