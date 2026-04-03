@@ -26,6 +26,19 @@ public class Logement {
     @Column(name = "date_modification")
     private LocalDateTime dateModification;
 
+    // @PrePersist - Pour initialiser la date de création
+    @PrePersist
+    public void createDate() {
+        this.dateCreation = LocalDateTime.now();
+        this.dateModification = LocalDateTime.now();
+    }
+
+    // @PreUpdate - Pour mettre à jour la date de modification
+    @PreUpdate
+    public void updateDate() {
+        this.dateModification = LocalDateTime.now();
+    }
+
     // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

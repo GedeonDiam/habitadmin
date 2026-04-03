@@ -37,11 +37,15 @@ public class DashboardService {
         // Données réelles depuis la BDD
         List<Long> occupiedLogementIds = contratService.getOccupiedLogementIds();
         long locatairesCount = utilisateurService.getTotalUsers();
-        long availableContractsCount = Math.max(0, totalLogements - occupiedLogementIds.size());
+        long totalContrats = contratService.getAllContrats().size();
+        long availableLogements = Math.max(0, totalLogements - occupiedLogementIds.size());
         
         stats.put("totalLogements", totalLogements);
         stats.put("totalUtilisateurs", locatairesCount); 
-        stats.put("totalContratsActifs", availableContractsCount);
+        stats.put("totalContrats", totalContrats);
+        stats.put("contratsActifs", contratService.getContratStats().get("totalContratsActifs"));
+        stats.put("occupiedLogements", occupiedLogementIds.size());
+        stats.put("availableLogements", availableLogements);
         stats.put("loyerMoyen", contratService.getContratStats().get("loyerMoyen"));
         
         // Incidents

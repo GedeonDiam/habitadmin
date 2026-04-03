@@ -15,7 +15,7 @@
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div class="flex-1">
-                <input type="text" id="searchInput" placeholder="🔍 Rechercher par ID utilisateur ou logement..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher par ID utilisateur ou logement..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" onkeyup="filterContracts()">
             </div>
             <button onclick="openAddContractModal()" class="px-6 py-2 text-white rounded-lg font-medium transition text-center w-full md:w-auto bg-green-admin hover:opacity-90">
                 ➕ Ajouter un contrat
@@ -25,15 +25,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
                 <p class="text-gray-600 text-sm">Contrats Actifs</p>
-                <p class="text-3xl font-bold text-green-600 mt-1" th:text="${stats?.totalContratsActifs ?: 0}">0</p>
+                <p class="text-3xl font-bold text-green-600 mt-1" id="activeContractsCount">0</p>
             </div>
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
                 <p class="text-gray-600 text-sm">Loyer Moyen</p>
-                <p class="text-3xl font-bold text-blue-600 mt-1" th:text="${stats?.loyerMoyen ?: 0} + '€'">0€</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1" id="averageLoyerCount">0€</p>
             </div>
             <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
                 <p class="text-gray-600 text-sm">Total Contrats</p>
-                <p class="text-3xl font-bold text-purple-600 mt-1">0</p>
+                <p class="text-3xl font-bold text-purple-600 mt-1" id="totalContractsCount">0</p>
             </div>
         </div>
 
@@ -51,10 +51,471 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="contractsTableBody" class="divide-y divide-gray-200"></tbody>
+                    <tbody id="contractsTableBody" class="divide-y divide-gray-200">
+                        <!-- Les contrats seront générés par JavaScript -->
+                    </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- MODAL - Ajouter/Éditer Contrat -->
+        <div id="contractModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+                <!-- Header Modal -->
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900" id="modalTitle">Ajouter un contrat</h2>
+                    <button onclick="closeContractModal()" class="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                </div>
+
+                <!-- Formulaire -->
+                <form id="contractForm" onsubmit="saveContract(event)" class="p-6 space-y-4">
+                    <!-- Utilisateur -->
+                    <div>
+                        <label for="utilisateurId" class="block text-sm font-medium text-gray-700 mb-1">Utilisateur</label>
+                        <select id="utilisateurId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                            <option value="">Sélectionner un utilisateur...</option>
+                        </select>
+                    </div>
+
+                    <!-- Logement -->
+                    <div>
+                        <label for="logementId" class="block text-sm font-medium text-gray-700 mb-1">Logement</label>
+                        <select id="logementId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                            <option value="">Sélectionner un logement...</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Début -->
+                    <div>
+                        <label for="dateDebut" class="block text-sm font-medium text-gray-700 mb-1">Date Début</label>
+                        <input type="date" id="dateDebut" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                    </div>
+
+                    <!-- Date Fin -->
+                    <div>
+                        <label for="dateFin" class="block text-sm font-medium text-gray-700 mb-1">Date Fin</label>
+                        <input type="date" id="dateFin" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                    </div>
+
+                    <!-- Montant Loyer -->
+                    <div>
+                        <label for="montantLoyer" class="block text-sm font-medium text-gray-700 mb-1">Montant Loyer (€)</label>
+                        <input type="number" id="montantLoyer" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="0.00">
+                    </div>
+
+                    <!-- Montant Caution -->
+                    <div>
+                        <label for="montantCaution" class="block text-sm font-medium text-gray-700 mb-1">Montant Caution (€)</label>
+                        <input type="number" id="montantCaution" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="0.00">
+                    </div>
+
+                    <!-- Statut -->
+                    <div>
+                        <label for="statut" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                        <select id="statut" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                            <option value="">Sélectionner un statut...</option>
+                            <option value="actif">Actif</option>
+                            <option value="suspendu">Suspendu</option>
+                            <option value="termine">Terminé</option>
+                        </select>
+                    </div>
+
+                    <!-- ID caché pour édition -->
+                    <input type="hidden" id="editingContractId">
+
+                    <!-- Boutons -->
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeContractModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+                            Annuler
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-green-admin text-white rounded-lg font-medium hover:opacity-90 transition">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- JavaScript -->
+        <script>
+            let contracts = [];
+            let users = [];
+            let logements = [];
+            let editingContractId = null;
+
+            // 🔄 Rafraîchir les données au chargement
+            function loadAllData() {
+                console.log('Chargement des données...');
+                const loadingStart = performance.now();
+
+                Promise.allSettled([
+                    loadContracts(),
+                    loadUsers(),
+                    loadLogements()
+                ]).then((results) => {
+                    const loadingEnd = performance.now();
+                    console.log('Résultats du chargement:', results);
+                    console.log(`Temps de chargement: ${(loadingEnd - loadingStart).toFixed(2)}ms`);
+
+                    // Vérifier les erreurs
+                    results.forEach((result, index) => {
+                        if (result.status === 'rejected') {
+                            const labels = ['contrats', 'utilisateurs', 'logements'];
+                            console.warn(`Erreur lors du chargement des ${labels[index]}:`, result.reason);
+                        }
+                    });
+
+                    updateStats();
+                });
+            }
+
+            // 📦 Charger les contrats
+            function loadContracts() {
+                return fetch('/habitago/contracts/api')
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Contrats reçus:', data);
+                        contracts = Array.isArray(data) ? data : [];
+                        renderContracts(contracts);
+                        return data;
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des contrats:', error);
+                    });
+            }
+
+            // 👥 Charger les utilisateurs
+            function loadUsers() {
+                return fetch('/habitago/users/api')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Utilisateurs reçus:', data);
+                        users = Array.isArray(data) ? data : [];
+                        populateUserSelect();
+                        return data;
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des utilisateurs:', error);
+                    });
+            }
+
+            // 🏠 Charger les logements
+            function loadLogements() {
+                return fetch('/habitago/logements/api')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Logements reçus:', data);
+                        logements = Array.isArray(data) ? data : [];
+                        populateLogementSelect();
+                        return data;
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des logements:', error);
+                    });
+            }
+
+            // 🎨 Afficher les contrats dans le tableau
+            function renderContracts(contractsData) {
+                const tbody = document.getElementById('contractsTableBody');
+                console.log('Rendu des contrats:', contractsData);
+
+                if (!contractsData || contractsData.length === 0) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            Aucun contrat trouvé
+                        </td>
+                    </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = contractsData.map(contract => `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-900">${contract.utilisateur?.id || contract.utilisateurId || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${contract.logement?.id || contract.logementId || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${formatDate(contract.dateDebut)}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${formatDate(contract.dateFin)}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">${formatCurrency(contract.montantLoyer)}</td>
+                        <td class="px-6 py-4 text-sm">${getStatusBadge(contract.statut)}</td>
+                        <td class="px-6 py-4 text-sm space-x-2 flex">
+                            <button onclick="editContract(${contract.id})" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs">✏️ Éditer</button>
+                            <button onclick="deleteContract(${contract.id})" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-xs">🗑️ Supprimer</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // 📅 Formater la date
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR');
+            }
+
+            // 💰 Formater le montant en euros (gère BigDecimal ou Number)
+            function formatCurrency(amount) {
+                if (!amount && amount !== 0) return '0.00€';
+                try {
+                    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+                    return num.toLocaleString('fr-FR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '€';
+                } catch (e) {
+                    return '0.00€';
+                }
+            }
+
+            // 🏷️ Badge pour le statut
+            function getStatusBadge(status) {
+                const badges = {
+                    'actif': '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">✅ Actif</span>',
+                    'suspendu': '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">⚠️ Suspendu</span>',
+                    'termine': '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">✓ Terminé</span>'
+                };
+                return badges[status] || '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">-</span>';
+            }
+
+            // 📈 Mettre à jour les statistiques
+            function updateStats() {
+                const totalContracts = contracts.length;
+                const activeContracts = contracts.filter(c => c.statut === 'actif').length;
+                const averageLoyer = contracts.length > 0 ?
+                    (contracts.reduce((sum, c) => sum + parseFloat(c.montantLoyer || 0), 0) / contracts.length).toFixed(2) :
+                    0;
+
+                console.log('Mise à jour stats: total=' + totalContracts + ', actifs=' + activeContracts + ', moyen=' + averageLoyer);
+
+                document.getElementById('activeContractsCount').textContent = activeContracts;
+                document.getElementById('averageLoyerCount').textContent = averageLoyer + '€';
+                document.getElementById('totalContractsCount').textContent = totalContracts;
+            }
+
+            // 🔍 Filtrer les contrats
+            function filterContracts() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = contracts.filter(contract =>
+                    (contract.utilisateur && contract.utilisateur.id && contract.utilisateur.id.toString().includes(searchTerm)) ||
+                    (contract.logement && contract.logement.id && contract.logement.id.toString().includes(searchTerm))
+                );
+                renderContracts(filtered);
+            }
+
+            // 📝 Remplir le sélect des utilisateurs
+            function populateUserSelect() {
+                const select = document.getElementById('utilisateurId');
+                select.innerHTML = '<option value="">Sélectionner un utilisateur...</option>';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.prenom} ${user.nom} (${user.email})`;
+                    select.appendChild(option);
+                });
+            }
+
+            // 📝 Remplir le sélect des logements
+            function populateLogementSelect() {
+                const select = document.getElementById('logementId');
+                select.innerHTML = '<option value="">Sélectionner un logement...</option>';
+                logements.forEach(logement => {
+                    const option = document.createElement('option');
+                    option.value = logement.id;
+                    option.textContent = `${logement.adresse || 'Logement'} (ID: ${logement.id})`;
+                    select.appendChild(option);
+                });
+            }
+
+            // ➕ Ouvrir le modal pour ajouter
+            function openAddContractModal() {
+                editingContractId = null;
+                document.getElementById('modalTitle').textContent = 'Ajouter un nouveau contrat';
+                document.getElementById('contractForm').reset();
+                document.getElementById('contractModal').classList.remove('hidden');
+                document.getElementById('contractModal').classList.add('flex');
+            }
+
+            // ✏️ Ouvrir le modal pour éditer
+            function editContract(contractId) {
+                const contract = contracts.find(c => c.id === contractId);
+                if (!contract) return;
+
+                editingContractId = contractId;
+                document.getElementById('utilisateurId').value =
+                    contract.utilisateur ? contract.utilisateur.id : '';
+
+                document.getElementById('logementId').value =
+                    contract.logement ? contract.logement.id : '';
+
+                document.getElementById('dateDebut').value = contract.dateDebut || '';
+                document.getElementById('dateFin').value = contract.dateFin || '';
+                document.getElementById('montantLoyer').value = contract.montantLoyer || '';
+                document.getElementById('montantCaution').value = contract.montantCaution || '';
+                document.getElementById('statut').value = contract.statut || '';
+
+                document.getElementById('contractModal').classList.remove('hidden');
+                document.getElementById('contractModal').classList.add('flex');
+            }
+
+            // ❌ Fermer le modal
+            function closeContractModal() {
+                document.getElementById('contractModal').classList.add('hidden');
+                document.getElementById('contractModal').classList.remove('flex');
+                editingContractId = null;
+            }
+
+            // 💾 Enregistrer le contrat
+            function saveContract(event) {
+                event.preventDefault();
+
+                const utilisateurId = document.getElementById('utilisateurId').value;
+                const logementId = document.getElementById('logementId').value;
+                const dateDebut = document.getElementById('dateDebut').value;
+                const dateFin = document.getElementById('dateFin').value;
+                const montantLoyer = document.getElementById('montantLoyer').value;
+                const montantCaution = document.getElementById('montantCaution').value;
+                const statut = document.getElementById('statut').value;
+
+                // Validation basique
+                if (!utilisateurId || !logementId || !dateDebut || !dateFin || !montantLoyer || !statut) {
+                    alert('Veuillez remplir tous les champs obligatoires');
+                    return;
+                }
+
+                const contract = {
+                    utilisateur: {
+                        id: parseInt(utilisateurId)
+                    },
+                    logement: {
+                        id: parseInt(logementId)
+                    },
+                    dateDebut: dateDebut,
+                    dateFin: dateFin,
+                    montantLoyer: parseFloat(montantLoyer),
+                    montantCaution: parseFloat(montantCaution),
+                    statut: statut
+                };
+
+                console.log('Contrat à sauvegarder:', contract);
+
+                if (editingContractId) {
+                    // 🔄 Modification
+                    fetch(`/habitago/contracts/api/${editingContractId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(contract)
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`HTTP ${response.status}: ${text}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Contrat modifié:', data);
+                            loadContracts();
+                            closeContractModal();
+                            alert('Contrat modifié avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la modification du contrat:\n' + error.message);
+                        });
+                } else {
+                    // ➕ Création
+                    fetch('/habitago/contracts/api', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(contract)
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`HTTP ${response.status}: ${text}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Contrat créé:', data);
+                            loadContracts();
+                            closeContractModal();
+                            alert('Contrat ajouté avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de l\'ajout du contrat:\n' + error.message);
+                        });
+                }
+            }
+
+            // 🗑️ Supprimer un contrat
+            function deleteContract(contractId) {
+                const contract = contracts.find(c => c.id === contractId);
+                if (!contract) return;
+
+                if (confirm(`Êtes-vous sûr de vouloir supprimer ce contrat ?`)) {
+                    fetch(`/habitago/contracts/api/${contractId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                        })
+                        .then(() => {
+                            console.log('Contrat supprimé');
+                            loadContracts();
+                            alert('Contrat supprimé avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la suppression du contrat: ' + error.message);
+                        });
+                }
+            }
+
+            // 🚀 Charger les données au chargement de la page
+            console.log('Page chargée, lancement du chargement des données');
+            window.addEventListener('load', loadAllData);
+
+            // Fermer le modal en cliquant sur le fond
+            document.addEventListener('DOMContentLoaded', function() {
+                const contractModal = document.getElementById('contractModal');
+                if (contractModal) {
+                    contractModal.addEventListener('click', function(event) {
+                        if (event.target === this) {
+                            closeContractModal();
+                        }
+                    });
+                }
+            });
+        </script>
     </th:block>
 </body>
+
 </html>

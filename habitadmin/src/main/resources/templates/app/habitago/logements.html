@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{app-layout}" lang="fr">
+
+<head>
+    <title>Gestion des Logements - HabitAdmin</title>
+</head>
+
+<body>
+    <th:block layout:fragment="pageTitle">🏠 Gestion des Logements</th:block>
+
+    <th:block layout:fragment="content">
+        <!-- Sous-titre et description -->
+        <div class="mb-8">
+            <p class="text-gray-600">Gérez tous les logements de votre portefeuille immobilier</p>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <!-- Barre de recherche -->
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher par adresse, ville ou code postal..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" onkeyup="filterLogements()">
+            </div>
+
+            <!-- Bouton Ajouter -->
+            <button onclick="openAddLogementModal()" class="px-6 py-2 text-white rounded-lg font-medium transition text-center w-full md:w-auto bg-green-admin hover:opacity-90">
+                ➕ Ajouter un logement
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+                <p class="text-gray-600 text-sm">Total Logements</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1" id="totalLogements">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+                <p class="text-gray-600 text-sm">Appartements</p>
+                <p class="text-3xl font-bold text-green-600 mt-1" id="apartmentCount">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+                <p class="text-gray-600 text-sm">Maisons</p>
+                <p class="text-3xl font-bold text-purple-600 mt-1" id="houseCount">0</p>
+            </div>
+        </div>
+
+        <!-- Tableau des logements -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Adresse</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Ville</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Code Postal</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date Création</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="logementsTableBody" class="divide-y divide-gray-200">
+                        <!-- Les logements seront générés par JavaScript -->
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+        <!-- MODAL - Ajouter/Éditer Logement -->
+        <div id="logementModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+                <!-- Header Modal -->
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900" id="modalTitle">Ajouter un logement</h2>
+                    <button onclick="closeLogementModal()" class="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                </div>
+
+                <!-- Formulaire -->
+                <form id="logementForm" onsubmit="saveLogement(event)" class="p-6 space-y-4">
+                    <!-- Adresse -->
+                    <div>
+                        <label for="adresse" class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                        <input type="text" id="adresse" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="123 rue de la Paix">
+                    </div>
+
+                    <!-- Ville -->
+                    <div>
+                        <label for="ville" class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+                        <input type="text" id="ville" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="Paris">
+                    </div>
+
+                    <!-- Code Postal -->
+                    <div>
+                        <label for="codePostal" class="block text-sm font-medium text-gray-700 mb-1">Code Postal</label>
+                        <input type="text" id="codePostal" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin" placeholder="75001">
+                    </div>
+
+                    <!-- Type Logement -->
+                    <div>
+                        <label for="typeLogement" class="block text-sm font-medium text-gray-700 mb-1">Type de Logement</label>
+                        <select id="typeLogement" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-admin">
+                            <option value="">Sélectionner un type...</option>
+                            <option value="appartement">🏢 Appartement</option>
+                            <option value="maison">🏡 Maison</option>
+                            <option value="studio">🛏️ Studio</option>
+                            <option value="t2">🛋️ T2/2 Pièces</option>
+                            <option value="t3">🛋️ T3/3 Pièces</option>
+                            <option value="commerce">🏪 Commerce</option>
+                            <option value="bureau">🏢 Bureau</option>
+                            <option value="autre">📦 Autre</option>
+                        </select>
+                    </div>
+
+                    <!-- ID caché pour édition -->
+                    <input type="hidden" id="editingLogementId">
+
+                    <!-- Boutons -->
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeLogementModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+                            Annuler
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-green-admin text-white rounded-lg font-medium hover:opacity-90 transition">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- JavaScript -->
+        <script>
+            let logements = [];
+            let editingLogementId = null;
+
+            // 🔄 Rafraîchir les données au chargement
+            function loadLogements() {
+                console.log('Chargement des logements...');
+                const loadingStart = performance.now();
+
+                fetch('/habitago/logements/api')
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const loadingEnd = performance.now();
+                        console.log('Logements reçus:', data);
+                        console.log(`Temps de chargement: ${(loadingEnd - loadingStart).toFixed(2)}ms`);
+                        logements = Array.isArray(data) ? data : [];
+                        renderLogements(logements);
+                        updateStats();
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des logements:', error);
+                        alert('Erreur lors du chargement des logements:\n' + error.message);
+                    });
+            }
+
+            // 🎨 Afficher les logements dans le tableau
+            function renderLogements(logementData) {
+                const tbody = document.getElementById('logementsTableBody');
+                console.log('Rendu des logements:', logementData);
+
+                if (!logementData || logementData.length === 0) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            Aucun logement trouvé
+                        </td>
+                    </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = logementData.map(logement => `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-900">${logement.adresse || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${logement.ville || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${logement.codePostal || '-'}</td>
+                        <td class="px-6 py-4 text-sm">${getTypeBadge(logement.typeLogement)}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${formatDate(logement.dateCreation)}</td>
+                        <td class="px-6 py-4 text-sm space-x-2 flex">
+                            <button onclick="editLogement(${logement.id})" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs">✏️ Éditer</button>
+                            <button onclick="deleteLogement(${logement.id})" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-xs">🗑️ Supprimer</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // 📅 Formater la date
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR');
+            }
+
+            // 🏷️ Afficher le badge selon le type de logement
+            function getTypeBadge(type) {
+                const badges = {
+                    'appartement': '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">🏢 Appartement</span>',
+                    'maison': '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">🏡 Maison</span>',
+                    'studio': '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">🛏️ Studio</span>',
+                    't2': '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold">🛋️ T2</span>',
+                    't3': '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold">🛋️ T3</span>',
+                    'commerce': '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold">🏪 Commerce</span>',
+                    'bureau': '<span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">🏢 Bureau</span>',
+                    'autre': '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">📦 Autre</span>'
+                };
+                const normalizedType = type ? type.toLowerCase() : 'autre';
+                return badges[normalizedType] || badges['autre'];
+            }
+
+            // 📈 Mettre à jour les statistiques
+            function updateStats() {
+                const totalLogements = logements.length;
+                const appartements = logements.filter(l => l.typeLogement && l.typeLogement.toLowerCase() === 'appartement').length;
+                const maisons = logements.filter(l => l.typeLogement && l.typeLogement.toLowerCase() === 'maison').length;
+
+                console.log('Mise à jour stats: total=' + totalLogements + ', appartements=' + appartements + ', maisons=' + maisons);
+
+                document.getElementById('totalLogements').textContent = totalLogements;
+                document.getElementById('apartmentCount').textContent = appartements;
+                document.getElementById('houseCount').textContent = maisons;
+            }
+
+            // 🔍 Filtrer les logements (✅ Optional chaining correcte)
+            function filterLogements() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = logements.filter(logement =>
+                    (logement.adresse && logement.adresse.toLowerCase().includes(searchTerm)) ||
+                    (logement.ville && logement.ville.toLowerCase().includes(searchTerm)) ||
+                    (logement.codePostal && logement.codePostal.toLowerCase().includes(searchTerm))
+                );
+                renderLogements(filtered);
+            }
+
+            // ➕ Ouvrir le modal pour ajouter
+            function openAddLogementModal() {
+                editingLogementId = null;
+                document.getElementById('modalTitle').textContent = 'Ajouter un nouveau logement';
+                document.getElementById('logementForm').reset();
+                document.getElementById('logementModal').classList.remove('hidden');
+                document.getElementById('logementModal').classList.add('flex');
+            }
+
+            // ✏️ Ouvrir le modal pour éditer (✅ Optional chaining correcte)
+            function editLogement(logementId) {
+                const logement = logements.find(l => l.id === logementId);
+                if (!logement) return;
+
+                editingLogementId = logementId;
+                document.getElementById('modalTitle').textContent = 'Modifier le logement';
+                document.getElementById('adresse').value = logement.adresse || '';
+                document.getElementById('ville').value = logement.ville || '';
+                document.getElementById('codePostal').value = logement.codePostal || '';
+                document.getElementById('typeLogement').value = logement.typeLogement || '';
+
+                document.getElementById('logementModal').classList.remove('hidden');
+                document.getElementById('logementModal').classList.add('flex');
+            }
+
+            // ❌ Fermer le modal
+            function closeLogementModal() {
+                document.getElementById('logementModal').classList.add('hidden');
+                document.getElementById('logementModal').classList.remove('flex');
+                editingLogementId = null;
+            }
+
+            // 💾 Enregistrer le logement
+            function saveLogement(event) {
+                event.preventDefault();
+
+                const adresse = document.getElementById('adresse').value;
+                const ville = document.getElementById('ville').value;
+                const codePostal = document.getElementById('codePostal').value;
+                const typeLogement = document.getElementById('typeLogement').value;
+
+                // Validation basique
+                if (!adresse || !ville || !codePostal || !typeLogement) {
+                    alert('Veuillez remplir tous les champs obligatoires');
+                    return;
+                }
+
+                const logement = {
+                    adresse: adresse,
+                    ville: ville,
+                    codePostal: codePostal,
+                    typeLogement: typeLogement
+                };
+
+                console.log('Logement à sauvegarder:', logement);
+
+                if (editingLogementId) {
+                    // 🔄 Modification (✅ Error handling amélioré)
+                    fetch(`/habitago/logements/api/${editingLogementId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(logement)
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`HTTP ${response.status}: ${text}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Logement modifié:', data);
+                            loadLogements();
+                            closeLogementModal();
+                            alert('Logement modifié avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la modification du logement:\n' + error.message);
+                        });
+                } else {
+                    // ➕ Création (✅ Error handling amélioré)
+                    fetch('/habitago/logements/api', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(logement)
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    throw new Error(`HTTP ${response.status}: ${text}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Logement créé:', data);
+                            loadLogements();
+                            closeLogementModal();
+                            alert('Logement ajouté avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de l\'ajout du logement:\n' + error.message);
+                        });
+                }
+            }
+
+            // 🗑️ Supprimer un logement
+            function deleteLogement(logementId) {
+                const logement = logements.find(l => l.id === logementId);
+                if (!logement) return;
+
+                if (confirm(`Êtes-vous sûr de vouloir supprimer le logement situé à ${logement.adresse} ?`)) {
+                    fetch(`/habitago/logements/api/${logementId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                        })
+                        .then(() => {
+                            console.log('Logement supprimé');
+                            loadLogements();
+                            alert('Logement supprimé avec succès!');
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la suppression du logement: ' + error.message);
+                        });
+                }
+            }
+
+            // 🚀 Charger les logements au chargement de la page
+            console.log('Page chargée, lancement du chargement des logements');
+            window.addEventListener('load', loadLogements);
+
+            // Fermer le modal en cliquant sur le fond
+            document.addEventListener('DOMContentLoaded', function() {
+                const logementModal = document.getElementById('logementModal');
+                if (logementModal) {
+                    logementModal.addEventListener('click', function(event) {
+                        if (event.target === this) {
+                            closeLogementModal();
+                        }
+                    });
+                }
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -32,7 +32,7 @@ public class SettingsController {
         }
         
         model.addAttribute("admin", admin);
-        return "app/settings";
+        return "app/habitago/settings";
     }
 
     // Mettre à jour le profil

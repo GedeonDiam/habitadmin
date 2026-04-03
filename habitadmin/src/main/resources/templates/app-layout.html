@@ -139,10 +139,10 @@
 
         <!-- Footer -->
         <div class="p-4 border-t border-gray-600 space-y-2">
-            <a href="/notifications" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition-all text-sm">
+            <!-- <a href="/notifications" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition-all text-sm">
                 <span class="text-lg">🔔</span>
                 <span>Notifications</span>
-            </a>
+            </a> -->
             <a href="/settings" class="flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition-all text-sm">
                 <span class="text-lg">⚙️</span>
                 <span>Paramètres</span>
@@ -169,10 +169,8 @@
                 </nav>
             </div>
             <div class="flex items-center space-x-4">
-                <button class="text-gray-600 hover:text-gray-900 text-lg">🔔</button>
                 <div class="relative">
-                    <div id="avatar-btn" class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer hover:bg-green-dark transition-colors" 
-                         th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom?.substring(0,1)?.toUpperCase() : 'A'}">
+                    <div id="avatar-btn" class="w-8 h-8 rounded-full bg-green-admin text-white flex items-center justify-center font-bold cursor-pointer hover:bg-green-dark transition-colors" th:text="${#authentication != null and #authentication.principal != null ? #authentication.principal.prenom?.substring(0,1)?.toUpperCase() : 'A'}">
                         A
                     </div>
                     <!-- Dropdown Menu -->
@@ -223,13 +221,40 @@
         function expandActiveMenu() {
             const habitagoMenu = document.getElementById('habitago-menu');
             const habitagreenMenu = document.getElementById('habitagreen-menu');
-            
+
             if (habitagoMenu && !habitagoMenu.classList.contains('hidden')) {
                 document.getElementById('habitago-icon').style.transform = 'rotate(180deg)';
             }
             if (habitagreenMenu && !habitagreenMenu.classList.contains('hidden')) {
                 document.getElementById('habitagreen-icon').style.transform = 'rotate(180deg)';
             }
+        }
+
+        // Avatar dropdown management
+        const avatarBtn = document.getElementById('avatar-btn');
+        const avatarDropdown = document.getElementById('avatar-dropdown');
+
+        if (avatarBtn && avatarDropdown) {
+            // Toggle dropdown on avatar click
+            avatarBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                avatarDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!avatarBtn.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                    avatarDropdown.classList.add('hidden');
+                }
+            });
+
+            // Close dropdown when clicking a link inside
+            const dropdownLinks = avatarDropdown.querySelectorAll('a, button');
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    avatarDropdown.classList.add('hidden');
+                });
+            });
         }
 
         function logout() {

@@ -1,6 +1,8 @@
 package com.habit.habitadmin.controller;
 
 import com.habit.habitadmin.service.UtilisateurService;
+import com.habit.habitadmin.service.LogementService;
+import com.habit.habitadmin.service.ContratService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HabitagoController {
 
     private final UtilisateurService utilisateurService;
+    private final LogementService logementService;
+    private final ContratService contratService;
 
-    public HabitagoController(UtilisateurService utilisateurService) {
+    public HabitagoController(UtilisateurService utilisateurService, LogementService logementService, ContratService contratService) {
         this.utilisateurService = utilisateurService;
+        this.logementService = logementService;
+        this.contratService = contratService;
     }
 
     /**
@@ -41,8 +47,21 @@ public class HabitagoController {
      * GET /app/habitago/contracts
      */
     @GetMapping("/contracts")
-    public String contracts() {
+    public String contracts(Model model) {
+        model.addAttribute("contrats", contratService.getAllContrats());
+        model.addAttribute("totalContrats", contratService.getAllContrats().size());
         return "app/habitago/contracts";
+    }
+
+    /**
+     * Gestion des logements
+     * GET /app/habitago/logements
+     */
+    @GetMapping("/logements")
+    public String logements(Model model) {
+        model.addAttribute("logements", logementService.getAllLogements());
+        model.addAttribute("totalLogements", logementService.getAllLogements().size());
+        return "app/habitago/logements";
     }
 
     /**
@@ -52,5 +71,14 @@ public class HabitagoController {
     @GetMapping("/payments")
     public String payments() {
         return "app/habitago/payments";
+    }
+
+    /**
+     * Page de paramètres
+     * GET /app/habitago/settings
+     */
+    @GetMapping("/settings")
+    public String settings() {
+        return "app/habitago/settings";
     }
 }
